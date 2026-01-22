@@ -1,0 +1,231 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { supabase } from '../lib/supabase';
+
+// Proteger la ruta - verificar autenticación
+const { data: { session } } = await supabase.auth.getSession();
+
+if (!session) {
+  return Astro.redirect('/login');
+}
+
+// Obtener pedidos del usuario con sus items
+const { data: orders } = await supabase
+  .from('orders')
+  .select(`
+    *,
+    order_items (
+      *,
+      products (*)
+    )
+  `)
+  .eq('user_id', session.user.id)
+  .order('created_at', { ascending: false });
+---
+
+<Layout title="Mis Pedidos">
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold mb-8">Mis Pedidos</h1>
+
+    {!orders || orders.length === 0 ? (
+      <div class="text-center py-12">
+        <div class="text-6xl mb-4">📦</div>
+        <p class="text-xl text-gray-600 mb-4">No tienes pedidos aún</p>
+        <a href="/productos" class="btn btn-primary">
+          Empezar a Comprar
+        </a>
+      </div>
+    ) : (
+      <div class="space-y-6">
+        {orders.map((order) => (
+          <div class="card">
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <h3 class="font-bold text-lg">Pedido #{order.id.slice(0, 8)}</h3>
+                <p class="text-sm text-gray-600">
+                  {new Date(order.created_at).toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </p>
+              </div>
+              <span class={`badge badge-${order.status}`}>
+                {order.status.toUpperCase()}
+              </span>
+            </div>
+
+            <!-- Items del pedido -->
+            <div class="space-y-2 mb-4">
+              {order.order_items.map((item: any) => (
+                <div class="flex items-center gap-4 border-b pb-2">
+                  <img 
+                    src={item.products.image_url} 
+                    alt={item.products.name}
+                    class="w-16 h-16 object-cover rounded"
+                  />
+                  <div class="flex-1">
+                    <p class="font-medium">{item.products.name}</p>
+                    <p class="text-sm text-gray-600">
+                      Cantidad: {item.quantity} × {item.price}€
+                    </p>
+                  </div>
+                  <p class="font-bold">
+                    {(item.quantity * item.price).toFixed(2)}€
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <!-- Total y descuentos -->
+            <div class="border-t pt-4 space-y-2">
+              {order.promo_code && (
+                <div class="flex justify-between text-sm text-green-600">
+                  <span>Descuento aplicado ({order.promo_code}):</span>
+                  <span>-{order.discount_amount}€</span>
+                </div>
+              )}
+              <div class="flex justify-between text-lg font-bold">
+                <span>Total:</span>
+                <span>{order.total}€</span>
+              </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="mt-4 flex gap-2">
+              {order.status === 'pagado' && (
+                <button
+                  class="btn btn-danger cancel-order-btn"
+                  data-order-id={order.id}
+                >
+                  Cancelar Pedido
+                </button>
+              )}
+              
+              {order.status === 'entregado' && (
+                <button
+                  class="btn btn-secondary request-return-btn"
+                  data-order-id={order.id}
+                >
+                  Solicitar Devolución
+                </button>
+              )}
+
+              {['enviado', 'entregado'].includes(order.status) && (
+                <button class="btn bg-blue-100 text-blue-800 hover:bg-blue-200">
+                  Seguir Pedido 📍
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+
+  <!-- Modal de Devolución -->
+  <div id="return-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-md w-full p-6">
+      <h2 class="text-2xl font-bold mb-4">Solicitar Devolución</h2>
+      
+      <div class="space-y-4 mb-6">
+        <div class="bg-blue-50 p-4 rounded-lg">
+          <h3 class="font-bold mb-2">📦 Instrucciones de Envío</h3>
+          <p class="text-sm">
+            <strong>Dirección:</strong><br>
+            BeniceAstro Devoluciones<br>
+            Calle Principal, 123<br>
+            28001 Madrid, España
+          </p>
+        </div>
+
+        <div class="bg-green-50 p-4 rounded-lg">
+          <h3 class="font-bold mb-2">✅ Confirmación</h3>
+          <p class="text-sm">
+            Recibirás un email de confirmación con los detalles de la devolución.
+          </p>
+        </div>
+
+        <div class="bg-yellow-50 p-4 rounded-lg">
+          <h3 class="font-bold mb-2">💰 Reembolso</h3>
+          <p class="text-sm">
+            El reembolso se procesará en 5-7 días hábiles una vez recibamos el producto.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex gap-2">
+        <button id="close-return-modal" class="btn bg-gray-200 text-gray-800 flex-1">
+          Cancelar
+        </button>
+        <button id="confirm-return" class="btn btn-primary flex-1">
+          Confirmar Devolución
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    import { supabase } from '../lib/supabase';
+
+    // Cancelar pedido
+    document.querySelectorAll('.cancel-order-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const orderId = (e.target as HTMLElement).dataset.orderId;
+        
+        if (!confirm('¿Estás seguro de que quieres cancelar este pedido? El stock será restaurado automáticamente.')) {
+          return;
+        }
+
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          const response = await fetch('/api/cancel-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              order_id: orderId,
+              user_id: session!.user.id
+            })
+          });
+
+          if (response.ok) {
+            alert('Pedido cancelado exitosamente');
+            window.location.reload();
+          } else {
+            const result = await response.json();
+            alert(result.error || 'Error al cancelar el pedido');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Error al cancelar el pedido');
+        }
+      });
+    });
+
+    // Modal de devolución
+    const returnModal = document.getElementById('return-modal');
+    let currentReturnOrderId: string | null = null;
+
+    document.querySelectorAll('.request-return-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        currentReturnOrderId = (e.target as HTMLElement).dataset.orderId || null;
+        returnModal?.classList.remove('hidden');
+      });
+    });
+
+    document.getElementById('close-return-modal')?.addEventListener('click', () => {
+      returnModal?.classList.add('hidden');
+      currentReturnOrderId = null;
+    });
+
+    document.getElementById('confirm-return')?.addEventListener('click', () => {
+      // En producción, aquí se enviaría una solicitud real
+      alert(`Solicitud de devolución enviada para el pedido ${currentReturnOrderId?.slice(0, 8)}. Recibirás un email con más información.`);
+      returnModal?.classList.add('hidden');
+      currentReturnOrderId = null;
+    });
+  </script>
+</Layout>

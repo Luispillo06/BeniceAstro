@@ -1,0 +1,80 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Iniciar Sesión">
+  <div class="max-w-md mx-auto px-4 py-12">
+    <div class="card">
+      <h1 class="text-3xl font-bold mb-6 text-center">Iniciar Sesión</h1>
+      
+      <form id="login-form">
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-2">Email</label>
+          <input
+            type="email"
+            id="email"
+            required
+            class="input"
+            placeholder="tu@email.com"
+          />
+        </div>
+        
+        <div class="mb-6">
+          <label class="block text-sm font-medium mb-2">Contraseña</label>
+          <input
+            type="password"
+            id="password"
+            required
+            class="input"
+            placeholder="••••••••"
+          />
+        </div>
+
+        <div id="error-message" class="hidden mb-4 p-3 bg-red-100 text-red-700 rounded-lg"></div>
+
+        <button type="submit" class="btn btn-primary w-full mb-4">
+          Iniciar Sesión
+        </button>
+      </form>
+
+      <div class="text-center space-y-2">
+        <a href="/recuperar-contrasena" class="text-blue-600 hover:underline block">
+          ¿Olvidaste tu contraseña?
+        </a>
+        <p class="text-gray-600">
+          ¿No tienes cuenta? 
+          <a href="/registro" class="text-blue-600 hover:underline">Regístrate</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    import { supabase } from '../lib/supabase';
+
+    const form = document.getElementById('login-form');
+    const errorMessage = document.getElementById('error-message');
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = (document.getElementById('email') as HTMLInputElement).value;
+      const password = (document.getElementById('password') as HTMLInputElement).value;
+
+      try {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) throw error;
+
+        // Redirigir a la página principal
+        window.location.href = '/';
+      } catch (error: any) {
+        errorMessage!.textContent = error.message || 'Error al iniciar sesión';
+        errorMessage!.classList.remove('hidden');
+      }
+    });
+  </script>
+</Layout>

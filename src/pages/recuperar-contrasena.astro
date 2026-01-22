@@ -1,0 +1,73 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Recuperar Contraseña">
+  <div class="max-w-md mx-auto px-4 py-12">
+    <div class="card">
+      <h1 class="text-3xl font-bold mb-6 text-center">Recuperar Contraseña</h1>
+      
+      <p class="text-gray-600 mb-6 text-center">
+        Introduce tu email y te enviaremos un enlace para restablecer tu contraseña
+      </p>
+
+      <form id="reset-form">
+        <div class="mb-6">
+          <label class="block text-sm font-medium mb-2">Email</label>
+          <input
+            type="email"
+            id="email"
+            required
+            class="input"
+            placeholder="tu@email.com"
+          />
+        </div>
+
+        <div id="error-message" class="hidden mb-4 p-3 bg-red-100 text-red-700 rounded-lg"></div>
+        <div id="success-message" class="hidden mb-4 p-3 bg-green-100 text-green-700 rounded-lg"></div>
+
+        <button type="submit" class="btn btn-primary w-full mb-4">
+          Enviar Enlace
+        </button>
+      </form>
+
+      <div class="text-center">
+        <a href="/login" class="text-blue-600 hover:underline">
+          Volver al inicio de sesión
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    import { supabase } from '../lib/supabase';
+
+    const form = document.getElementById('reset-form');
+    const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = (document.getElementById('email') as HTMLInputElement).value;
+
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/actualizar-contrasena`,
+        });
+
+        if (error) throw error;
+
+        successMessage!.textContent = 'Enlace de recuperación enviado. Revisa tu email.';
+        successMessage!.classList.remove('hidden');
+        errorMessage!.classList.add('hidden');
+        
+        (document.getElementById('email') as HTMLInputElement).value = '';
+      } catch (error: any) {
+        errorMessage!.textContent = error.message || 'Error al enviar el enlace';
+        errorMessage!.classList.remove('hidden');
+        successMessage!.classList.add('hidden');
+      }
+    });
+  </script>
+</Layout>

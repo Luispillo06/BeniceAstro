@@ -1,0 +1,132 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Registro">
+  <div class="max-w-md mx-auto px-4 py-12">
+    <div class="card">
+      <h1 class="text-3xl font-bold mb-6 text-center">Crear Cuenta</h1>
+      
+      <form id="register-form">
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-2">Nombre Completo</label>
+          <input
+            type="text"
+            id="full-name"
+            required
+            class="input"
+            placeholder="Juan Pérez"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-2">Email</label>
+          <input
+            type="email"
+            id="email"
+            required
+            class="input"
+            placeholder="tu@email.com"
+          />
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-2">Contraseña</label>
+          <input
+            type="password"
+            id="password"
+            required
+            minlength="6"
+            class="input"
+            placeholder="Mínimo 6 caracteres"
+          />
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-sm font-medium mb-2">Confirmar Contraseña</label>
+          <input
+            type="password"
+            id="confirm-password"
+            required
+            class="input"
+            placeholder="Repite tu contraseña"
+          />
+        </div>
+
+        <div id="error-message" class="hidden mb-4 p-3 bg-red-100 text-red-700 rounded-lg"></div>
+        <div id="success-message" class="hidden mb-4 p-3 bg-green-100 text-green-700 rounded-lg"></div>
+
+        <button type="submit" class="btn btn-primary w-full mb-4">
+          Crear Cuenta
+        </button>
+      </form>
+
+      <p class="text-center text-gray-600">
+        ¿Ya tienes cuenta? 
+        <a href="/login" class="text-blue-600 hover:underline">Inicia sesión</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    import { supabase } from '../lib/supabase';
+
+    const form = document.getElementById('register-form');
+    const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const fullName = (document.getElementById('full-name') as HTMLInputElement).value;
+      const email = (document.getElementById('email') as HTMLInputElement).value;
+      const password = (document.getElementById('password') as HTMLInputElement).value;
+      const confirmPassword = (document.getElementById('confirm-password') as HTMLInputElement).value;
+
+      // Validar contraseñas
+      if (password !== confirmPassword) {
+        errorMessage!.textContent = 'Las contraseñas no coinciden';
+        errorMessage!.classList.remove('hidden');
+        successMessage!.classList.add('hidden');
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+            }
+          }
+        });
+
+        if (error) throw error;
+
+        // Crear perfil de usuario (rol 'user' por defecto)
+        if (data.user) {
+          await supabase.from('users').insert({
+            id: data.user.id,
+            email: email,
+            full_name: fullName,
+            role: 'user'
+          });
+        }
+
+        successMessage!.textContent = 'Cuenta creada exitosamente. Redirigiendo...';
+        successMessage!.classList.remove('hidden');
+        errorMessage!.classList.add('hidden');
+
+        // Redirigir después de 2 segundos
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+      } catch (error: any) {
+        errorMessage!.textContent = error.message || 'Error al crear la cuenta';
+        errorMessage!.classList.remove('hidden');
+        successMessage!.classList.add('hidden');
+      }
+    });
+  </script>
+</Layout>

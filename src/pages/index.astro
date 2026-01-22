@@ -1,0 +1,439 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { supabase } from '../lib/supabase';
+
+// Obtener productos
+const { data: products, count: totalProducts } = await supabase
+  .from('products')
+  .select('*', { count: 'exact' })
+  .order('created_at', { ascending: false });
+
+const hasProducts = products && products.length > 0;
+---
+
+<Layout title="Inicio">
+  <div class="bg-white min-h-screen">
+    
+    <!-- Hero Banner compacto -->
+    <div class="bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-400 py-8">
+      <div class="max-w-7xl mx-auto px-4 text-center">
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+          🐾 Venice - Tu tienda de mascotas
+        </h1>
+        <p class="text-gray-800">Todo lo que tu mascota necesita en un solo lugar</p>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 py-6">
+      <div class="flex gap-8">
+        
+        <!-- Sidebar de Filtros -->
+        <aside class="w-64 flex-shrink-0 hidden lg:block">
+          <div class="sticky top-4">
+            <div class="flex items-center gap-2 mb-6 pb-4 border-b border-gray-200">
+              <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+              </svg>
+              <span class="font-bold text-gray-800 text-lg">Filtros</span>
+            </div>
+
+            <!-- Especie -->
+            <div class="filter-section border-b border-gray-100 py-3">
+              <button class="filter-toggle flex justify-between items-center w-full text-left font-medium text-gray-700 hover:text-yellow-600 transition-colors">
+                <span>Especie</span>
+                <svg class="w-4 h-4 chevron transition-transform text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="filter-content mt-2 space-y-1">
+                <label class="flex items-center py-1 cursor-pointer hover:text-yellow-600 transition-colors">
+                  <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">Perro</span>
+                </label>
+                <label class="flex items-center py-1 cursor-pointer hover:text-yellow-600 transition-colors">
+                  <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">Gato</span>
+                </label>
+                <label class="flex items-center py-1 cursor-pointer hover:text-yellow-600 transition-colors">
+                  <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">Otros animales</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Categoría -->
+            <div class="filter-section border-b border-gray-100 py-3">
+              <button class="filter-toggle flex justify-between items-center w-full text-left font-medium text-gray-700 hover:text-yellow-600 transition-colors">
+                <span>Categoría</span>
+                <svg class="w-4 h-4 chevron transition-transform text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="filter-content mt-2 space-y-1">
+                <label class="flex items-center py-1 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">Alimento</span>
+                </label>
+                <label class="flex items-center py-1 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">Juguetes</span>
+                </label>
+                <label class="flex items-center py-1 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">Accesorios</span>
+                </label>
+                <label class="flex items-center py-1 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">Salud</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Productos en Oferta -->
+            <div class="filter-section border-b border-gray-100 py-3">
+              <button class="filter-toggle flex justify-between items-center w-full text-left font-medium text-gray-700 hover:text-yellow-600 transition-colors">
+                <span>Productos en Oferta</span>
+                <svg class="w-4 h-4 chevron transition-transform text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="filter-content mt-2">
+                <label class="flex items-center py-1 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">Solo ofertas</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Precio -->
+            <div class="filter-section border-b border-gray-100 py-3">
+              <button class="filter-toggle flex justify-between items-center w-full text-left font-medium text-gray-700 hover:text-yellow-600 transition-colors">
+                <span>Precio</span>
+                <svg class="w-4 h-4 chevron transition-transform text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="filter-content mt-2 space-y-1">
+                <label class="flex items-center py-1 cursor-pointer">
+                  <input type="radio" name="precio" class="w-4 h-4 border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">0€ - 20€</span>
+                </label>
+                <label class="flex items-center py-1 cursor-pointer">
+                  <input type="radio" name="precio" class="w-4 h-4 border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">20€ - 50€</span>
+                </label>
+                <label class="flex items-center py-1 cursor-pointer">
+                  <input type="radio" name="precio" class="w-4 h-4 border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">50€ - 100€</span>
+                </label>
+                <label class="flex items-center py-1 cursor-pointer">
+                  <input type="radio" name="precio" class="w-4 h-4 border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">Más de 100€</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Vendido y enviado por -->
+            <div class="filter-section border-b border-gray-100 py-3">
+              <button class="filter-toggle flex justify-between items-center w-full text-left font-medium text-gray-700 hover:text-yellow-600 transition-colors">
+                <span>Vendido y enviado por</span>
+                <svg class="w-4 h-4 chevron transition-transform text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="filter-content mt-2 space-y-1">
+                <label class="flex items-center py-1 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">Venice</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Edad -->
+            <div class="filter-section border-b border-gray-100 py-3">
+              <button class="filter-toggle flex justify-between items-center w-full text-left font-medium text-gray-700 hover:text-yellow-600 transition-colors">
+                <span>Edad</span>
+                <svg class="w-4 h-4 chevron transition-transform text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="filter-content mt-2 space-y-1">
+                <label class="flex items-center py-1 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">Cachorro</span>
+                </label>
+                <label class="flex items-center py-1 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">Adulto</span>
+                </label>
+                <label class="flex items-center py-1 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">Senior</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Tamaño raza -->
+            <div class="filter-section border-b border-gray-100 py-3">
+              <button class="filter-toggle flex justify-between items-center w-full text-left font-medium text-gray-700 hover:text-yellow-600 transition-colors">
+                <span>Tamaño raza</span>
+                <svg class="w-4 h-4 chevron transition-transform text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="filter-content mt-2 space-y-1">
+                <label class="flex items-center py-1 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">Pequeño</span>
+                </label>
+                <label class="flex items-center py-1 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">Mediano</span>
+                </label>
+                <label class="flex items-center py-1 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400">
+                  <span class="ml-2 text-sm text-gray-600">Grande</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Razas -->
+            <div class="filter-section py-3">
+              <button class="filter-toggle flex justify-between items-center w-full text-left font-medium text-gray-700 hover:text-yellow-600 transition-colors">
+                <span>Razas</span>
+                <svg class="w-4 h-4 chevron transition-transform text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              <div class="filter-content mt-2">
+                <input type="text" placeholder="Buscar raza..." class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent">
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Contenido principal - Productos -->
+        <div class="flex-1">
+          
+          <!-- Barra superior: Resultados + Ordenar -->
+          <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+            <p class="text-gray-700 font-medium">
+              <span class="text-yellow-600 font-bold text-xl">{totalProducts || 0}</span> Resultados
+            </p>
+            <div class="flex items-center gap-3">
+              <span class="text-sm text-gray-500">Ordenar por</span>
+              <select class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 cursor-pointer bg-white">
+                <option value="relevancia">Relevancia</option>
+                <option value="precio-asc">Precio: menor a mayor</option>
+                <option value="precio-desc">Precio: mayor a menor</option>
+                <option value="nombre">Nombre A-Z</option>
+                <option value="valoracion">Mejor valorados</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Grid de productos o mensaje vacío -->
+          {hasProducts ? (
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {products.map((product: any) => (
+                <div class="product-card bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 group relative">
+                  {product.discount && (
+                    <div class="absolute top-3 left-3 z-10">
+                      <span class="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                        -{product.discount}% Dto.
+                      </span>
+                    </div>
+                  )}
+                  
+                  <div class="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+                    <img 
+                      src={product.image || 'https://via.placeholder.com/300x300?text=Producto'} 
+                      alt={product.name}
+                      class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+
+                  <div class="p-5">
+                    <h3 class="font-semibold text-gray-800 mb-2 line-clamp-2 min-h-[48px] group-hover:text-yellow-600 transition-colors">
+                      <span class="font-bold">{product.brand || 'Venice'}</span> {product.name}
+                    </h3>
+
+                    <div class="flex items-center gap-1 mb-3">
+                      <div class="flex text-yellow-400">
+                        <span>★★★★</span><span class="text-gray-300">★</span>
+                      </div>
+                      <span class="text-sm text-gray-500 ml-1">4.8 (128)</span>
+                    </div>
+
+                    <div class="mb-3">
+                      <span class="text-2xl font-bold text-gray-900">{product.price}€</span>
+                      {product.original_price && (
+                        <span class="text-sm text-gray-400 line-through ml-2">{product.original_price}€</span>
+                      )}
+                    </div>
+
+                    <div class="flex items-center gap-1 mb-4 text-xs text-gray-500">
+                      <span class="text-yellow-500">🐾</span>
+                      Vendido por <span class="font-semibold text-yellow-600">Venice</span>
+                    </div>
+
+                    <button 
+                      class="add-to-cart w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 font-bold rounded-xl hover:from-yellow-500 hover:to-orange-500 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                      data-product-id={product.id}
+                      data-product-name={product.name}
+                      data-product-price={product.price}
+                      data-product-image={product.image}
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                      </svg>
+                      Añadir al carrito
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <!-- Estado vacío épico -->
+            <div class="flex flex-col items-center justify-center py-20">
+              <div class="relative mb-8">
+                <div class="w-40 h-40 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-full flex items-center justify-center">
+                  <span class="text-8xl animate-bounce">🐾</span>
+                </div>
+                <div class="absolute -top-2 -right-2 w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center animate-pulse shadow-lg">
+                  <span class="text-2xl">❓</span>
+                </div>
+              </div>
+              
+              <h2 class="text-4xl font-bold text-gray-800 mb-4 text-center">
+                ¡Ups! No hay productos
+              </h2>
+              <p class="text-gray-500 text-center max-w-md mb-8 text-lg">
+                Parece que aún no hemos añadido productos a la tienda. 
+                ¡Vuelve pronto para descubrir las mejores ofertas para tu mascota!
+              </p>
+              
+              <div class="flex flex-col sm:flex-row gap-4">
+                <a href="/admin" class="px-8 py-4 bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-bold rounded-xl hover:from-yellow-500 hover:to-orange-500 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2 text-lg">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                  </svg>
+                  Ir al Panel Admin
+                </a>
+                <button onclick="window.location.reload()" class="px-8 py-4 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:border-yellow-400 hover:text-yellow-600 transition-all flex items-center gap-2 text-lg">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                  </svg>
+                  Recargar
+                </button>
+              </div>
+
+              <!-- Animación de mascotas -->
+              <div class="mt-16 flex gap-6 text-5xl">
+                <div class="animate-bounce" style="animation-delay: 0s; animation-duration: 1s;">🐕</div>
+                <div class="animate-bounce" style="animation-delay: 0.15s; animation-duration: 1s;">🐈</div>
+                <div class="animate-bounce" style="animation-delay: 0.3s; animation-duration: 1s;">🐹</div>
+                <div class="animate-bounce" style="animation-delay: 0.45s; animation-duration: 1s;">🐦</div>
+                <div class="animate-bounce" style="animation-delay: 0.6s; animation-duration: 1s;">🐰</div>
+              </div>
+              
+              <!-- Nota de acceso admin -->
+              <div class="mt-12 p-4 bg-yellow-50 border border-yellow-200 rounded-xl max-w-lg">
+                <p class="text-sm text-yellow-800 text-center">
+                  <strong>💡 Tip:</strong> Para acceder al panel de administración, ve a <code class="bg-yellow-100 px-2 py-1 rounded">/admin</code> y usa un email que contenga "admin" (ej: admin@venice.com)
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .filter-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+      opacity: 0;
+    }
+    .filter-section.open .filter-content {
+      max-height: 500px;
+      opacity: 1;
+    }
+    .filter-section.open .chevron {
+      transform: rotate(180deg);
+    }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+
+  <script>
+    // Toggle de filtros
+    document.querySelectorAll('.filter-toggle').forEach((button, index) => {
+      button.addEventListener('click', () => {
+        const section = button.closest('.filter-section');
+        section?.classList.toggle('open');
+      });
+      // Abrir primeros 4 filtros por defecto
+      if (index < 4) {
+        button.closest('.filter-section')?.classList.add('open');
+      }
+    });
+
+    // Añadir al carrito
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const btn = e.currentTarget as HTMLButtonElement;
+        const product = {
+          id: btn.dataset.productId,
+          name: btn.dataset.productName,
+          price: parseFloat(btn.dataset.productPrice || '0'),
+          image: btn.dataset.productImage,
+          quantity: 1
+        };
+
+        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const existingIndex = cart.findIndex((p: any) => p.id === product.id);
+        
+        if (existingIndex > -1) {
+          cart[existingIndex].quantity += 1;
+        } else {
+          cart.push(product);
+        }
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+        
+        const cartCount = document.getElementById('cart-count');
+        if (cartCount) {
+          const totalItems = cart.reduce((sum: number, p: any) => sum + p.quantity, 0);
+          cartCount.textContent = totalItems.toString();
+        }
+
+        btn.innerHTML = `
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          ¡Añadido!
+        `;
+        btn.classList.remove('from-yellow-400', 'to-yellow-500');
+        btn.classList.add('from-green-400', 'to-green-500');
+        
+        setTimeout(() => {
+          btn.innerHTML = `
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+            Añadir al carrito
+          `;
+          btn.classList.remove('from-green-400', 'to-green-500');
+          btn.classList.add('from-yellow-400', 'to-yellow-500');
+        }, 2000);
+      });
+    });
+  </script>
+</Layout>

@@ -1,0 +1,232 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'Tienda online de productos para mascotas' } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content={description}>
+  <title>{title} - Venice</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+  <nav class="bg-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-8">
+          <a href="/" class="text-2xl font-bold text-yellow-600">
+            🐾 Venice
+          </a>
+          <a href="/productos" class="text-gray-700 hover:text-yellow-600">Productos</a>
+          <a href="/sobre-nosotros" class="text-gray-700 hover:text-yellow-600">Sobre Nosotros</a>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <!-- Buscador -->
+          <div class="relative" id="search-container">
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Buscar productos..."
+              class="input w-64"
+            />
+            <div id="search-results" class="absolute z-50 w-full mt-2 bg-white rounded-lg shadow-lg hidden max-h-96 overflow-y-auto"></div>
+          </div>
+
+          <a href="/carrito" class="relative text-gray-700 hover:text-yellow-600">
+            🛒
+            <span id="cart-count" class="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              0
+            </span>
+          </a>
+          
+          <div id="auth-buttons">
+            <a href="/login" class="btn btn-primary">Iniciar Sesión</a>
+          </div>
+          
+          <div id="user-menu" class="hidden relative">
+            <button id="user-menu-button" class="flex items-center space-x-2 text-gray-700 hover:text-yellow-600">
+              <span id="user-email"></span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1">
+              <a href="/perfil" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Mi Perfil</a>
+              <a href="/mis-pedidos" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Mis Pedidos</a>
+              <a href="/admin" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" id="admin-link">Administración</a>
+              <button id="logout-button" class="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100">
+                Cerrar Sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="min-h-screen">
+    <slot />
+  </main>
+
+  <footer class="bg-gray-800 text-white mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+          <h3 class="text-lg font-bold mb-4">🐾 Venice</h3>
+          <p class="text-gray-400">Tu tienda de confianza para productos de mascotas</p>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold mb-4">Enlaces</h3>
+          <ul class="space-y-2 text-gray-400">
+            <li><a href="/productos" class="hover:text-white">Productos</a></li>
+            <li><a href="/sobre-nosotros" class="hover:text-white">Sobre Nosotros</a></li>
+            <li><a href="/contacto" class="hover:text-white">Contacto</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold mb-4">Atención al Cliente</h3>
+          <p class="text-gray-400">Email: info@beniceastro.com</p>
+          <p class="text-gray-400">Tel: +34 900 123 456</p>
+        </div>
+      </div>
+      <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+        <p>&copy; {new Date().getFullYear()} BeniceAstro. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    import { supabase } from '../lib/supabase';
+
+    // Verificar sesión del usuario
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const authButtons = document.getElementById('auth-buttons');
+      const userMenu = document.getElementById('user-menu');
+      const userEmail = document.getElementById('user-email');
+      const adminLink = document.getElementById('admin-link');
+
+      if (session) {
+        authButtons?.classList.add('hidden');
+        userMenu?.classList.remove('hidden');
+        if (userEmail) userEmail.textContent = session.user.email || '';
+        
+        // Mostrar admin solo si el email es admin
+        if (session.user.email?.includes('admin')) {
+          adminLink?.classList.remove('hidden');
+        } else {
+          adminLink?.classList.add('hidden');
+        }
+      } else {
+        authButtons?.classList.remove('hidden');
+        userMenu?.classList.add('hidden');
+      }
+    }
+
+    // Toggle del menú de usuario
+    const userMenuButton = document.getElementById('user-menu-button');
+    const userDropdown = document.getElementById('user-dropdown');
+    
+    userMenuButton?.addEventListener('click', () => {
+      userDropdown?.classList.toggle('hidden');
+    });
+
+    // Cerrar menú al hacer click fuera
+    document.addEventListener('click', (e) => {
+      if (!userMenuButton?.contains(e.target as Node) && !userDropdown?.contains(e.target as Node)) {
+        userDropdown?.classList.add('hidden');
+      }
+    });
+
+    // Logout
+    const logoutButton = document.getElementById('logout-button');
+    logoutButton?.addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = '/';
+    });
+
+    // Actualizar contador del carrito
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const count = cart.reduce((sum: number, item: any) => sum + item.quantity, 0);
+      const cartCount = document.getElementById('cart-count');
+      if (cartCount) {
+        cartCount.textContent = count.toString();
+      }
+    }
+
+    // Buscador instantáneo
+    let searchTimeout: number;
+    const searchInput = document.getElementById('search-input') as HTMLInputElement;
+    const searchResults = document.getElementById('search-results');
+
+    searchInput?.addEventListener('input', async (e) => {
+      const query = (e.target as HTMLInputElement).value.trim();
+      
+      clearTimeout(searchTimeout);
+      
+      if (query.length < 2) {
+        searchResults?.classList.add('hidden');
+        return;
+      }
+
+      searchTimeout = window.setTimeout(async () => {
+        try {
+          const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+          const products = await response.json();
+          
+          if (products.length === 0) {
+            searchResults!.innerHTML = `
+              <div class="p-4 text-gray-500">
+                No se encontraron productos
+              </div>
+            `;
+          } else {
+            searchResults!.innerHTML = products.map((p: any) => `
+              <a href="/producto/${p.id}" class="block p-3 hover:bg-gray-100 border-b last:border-b-0">
+                <div class="flex items-center space-x-3">
+                  <img src="${p.image_url}" alt="${p.name}" class="w-12 h-12 object-cover rounded">
+                  <div>
+                    <div class="font-medium">${p.name}</div>
+                    <div class="text-sm text-gray-600">${p.price}€</div>
+                  </div>
+                </div>
+              </a>
+            `).join('');
+          }
+          
+          searchResults?.classList.remove('hidden');
+        } catch (error) {
+          console.error('Error en búsqueda:', error);
+        }
+      }, 300);
+    });
+
+    // Cerrar resultados al hacer click fuera
+    document.addEventListener('click', (e) => {
+      const searchContainer = document.getElementById('search-container');
+      if (!searchContainer?.contains(e.target as Node)) {
+        searchResults?.classList.add('hidden');
+      }
+    });
+
+    // Inicializar
+    checkAuth();
+    updateCartCount();
+
+    // Actualizar carrito cuando cambie en otra pestaña
+    window.addEventListener('storage', updateCartCount);
+  </script>
+</body>
+</html>
