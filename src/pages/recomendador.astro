@@ -1,0 +1,390 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Recomendador de Productos">
+  <div class="bg-gradient-to-b from-yellow-50 to-white min-h-screen py-12">
+    <div class="max-w-4xl mx-auto px-4">
+      
+      <!-- Header -->
+      <div class="text-center mb-10">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">
+          Encuentra el Producto Perfecto
+        </h1>
+        <p class="text-lg text-gray-600">
+          Responde unas sencillas preguntas y te recomendaremos los mejores productos para tu mascota
+        </p>
+      </div>
+
+      <!-- Wizard Container -->
+      <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        
+        <!-- Progress Bar -->
+        <div class="bg-gray-100 px-6 py-4">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-sm font-medium text-gray-600">Progreso</span>
+            <span class="text-sm font-medium text-yellow-600" id="progress-text">Paso 1 de 4</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div id="progress-bar" class="bg-gradient-to-r from-yellow-400 to-orange-500 h-2 rounded-full transition-all duration-500" style="width: 25%"></div>
+          </div>
+        </div>
+
+        <!-- Steps Content -->
+        <div class="p-8">
+          
+          <!-- Step 1: Tipo de Mascota -->
+          <div id="step-1" class="step-content">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+              ¿Qué tipo de mascota tienes?
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <button class="pet-type-btn group p-8 border-2 border-gray-200 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all" data-value="perro">
+                <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">🐕</div>
+                <p class="text-lg font-semibold text-gray-800">Perro</p>
+              </button>
+              <button class="pet-type-btn group p-8 border-2 border-gray-200 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all" data-value="gato">
+                <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">🐈</div>
+                <p class="text-lg font-semibold text-gray-800">Gato</p>
+              </button>
+              <button class="pet-type-btn group p-8 border-2 border-gray-200 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all" data-value="otros">
+                <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">🐹</div>
+                <p class="text-lg font-semibold text-gray-800">Otros</p>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 2: Edad -->
+          <div id="step-2" class="step-content hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+              ¿Qué edad tiene tu mascota?
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <button class="age-btn group p-8 border-2 border-gray-200 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all" data-value="cachorro">
+                <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">🍼</div>
+                <p class="text-lg font-semibold text-gray-800">Cachorro</p>
+                <p class="text-sm text-gray-500">0-12 meses</p>
+              </button>
+              <button class="age-btn group p-8 border-2 border-gray-200 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all" data-value="adulto">
+                <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">💪</div>
+                <p class="text-lg font-semibold text-gray-800">Adulto</p>
+                <p class="text-sm text-gray-500">1-7 años</p>
+              </button>
+              <button class="age-btn group p-8 border-2 border-gray-200 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all" data-value="senior">
+                <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">🧓</div>
+                <p class="text-lg font-semibold text-gray-800">Senior</p>
+                <p class="text-sm text-gray-500">+7 años</p>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 3: Tamaño (solo para perros) -->
+          <div id="step-3" class="step-content hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+              ¿De qué tamaño es tu mascota?
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <button class="size-btn group p-8 border-2 border-gray-200 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all" data-value="mini">
+                <div class="text-4xl mb-4 group-hover:scale-110 transition-transform">🐕</div>
+                <p class="text-lg font-semibold text-gray-800">Pequeño</p>
+                <p class="text-sm text-gray-500">&lt;10 kg</p>
+              </button>
+              <button class="size-btn group p-8 border-2 border-gray-200 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all" data-value="mediano">
+                <div class="text-5xl mb-4 group-hover:scale-110 transition-transform">🐕</div>
+                <p class="text-lg font-semibold text-gray-800">Mediano</p>
+                <p class="text-sm text-gray-500">10-25 kg</p>
+              </button>
+              <button class="size-btn group p-8 border-2 border-gray-200 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all" data-value="grande">
+                <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">🐕</div>
+                <p class="text-lg font-semibold text-gray-800">Grande</p>
+                <p class="text-sm text-gray-500">&gt;25 kg</p>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 4: Categoría -->
+          <div id="step-4" class="step-content hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+              ¿Qué tipo de producto buscas?
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <button class="category-btn group p-6 border-2 border-gray-200 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all" data-value="alimentacion">
+                <div class="text-4xl mb-2 group-hover:scale-110 transition-transform">🍖</div>
+                <p class="font-semibold text-gray-800">Alimentación</p>
+              </button>
+              <button class="category-btn group p-6 border-2 border-gray-200 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all" data-value="juguetes">
+                <div class="text-4xl mb-2 group-hover:scale-110 transition-transform">🎾</div>
+                <p class="font-semibold text-gray-800">Juguetes</p>
+              </button>
+              <button class="category-btn group p-6 border-2 border-gray-200 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all" data-value="higiene">
+                <div class="text-4xl mb-2 group-hover:scale-110 transition-transform">🧴</div>
+                <p class="font-semibold text-gray-800">Higiene</p>
+              </button>
+              <button class="category-btn group p-6 border-2 border-gray-200 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all" data-value="salud">
+                <div class="text-4xl mb-2 group-hover:scale-110 transition-transform">💊</div>
+                <p class="font-semibold text-gray-800">Salud</p>
+              </button>
+              <button class="category-btn group p-6 border-2 border-gray-200 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all" data-value="accesorios">
+                <div class="text-4xl mb-2 group-hover:scale-110 transition-transform">🦮</div>
+                <p class="font-semibold text-gray-800">Accesorios</p>
+              </button>
+              <button class="category-btn group p-6 border-2 border-gray-200 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all" data-value="">
+                <div class="text-4xl mb-2 group-hover:scale-110 transition-transform">✨</div>
+                <p class="font-semibold text-gray-800">Todo</p>
+              </button>
+            </div>
+          </div>
+
+          <!-- Loading -->
+          <div id="loading-results" class="step-content hidden text-center py-12">
+            <div class="text-6xl mb-6 animate-bounce">🔍</div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Buscando productos perfectos...</h2>
+            <p class="text-gray-600">Analizando las mejores opciones para tu mascota</p>
+          </div>
+
+          <!-- Results -->
+          <div id="step-results" class="step-content hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+              🎉 ¡Productos Recomendados!
+            </h2>
+            <div id="results-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- Se llenan dinámicamente -->
+            </div>
+            <div class="text-center mt-8">
+              <button id="restart-btn" class="px-6 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:border-yellow-400 hover:text-yellow-600 transition-colors">
+                🔄 Empezar de nuevo
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="bg-gray-50 px-8 py-4 flex justify-between" id="nav-buttons">
+          <button id="back-btn" class="hidden px-6 py-3 text-gray-600 font-medium hover:text-gray-800 transition-colors flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Atrás
+          </button>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    import { supabase } from '../lib/supabase';
+
+    // Estado del wizard
+    let currentStep = 1;
+    const totalSteps = 4;
+    const selections: Record<string, string> = {
+      animal_type: '',
+      age_range: '',
+      size: '',
+      category: ''
+    };
+
+    // Elementos
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const backBtn = document.getElementById('back-btn');
+    const navButtons = document.getElementById('nav-buttons');
+
+    // Función para mostrar un paso
+    function showStep(step: number) {
+      document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
+      const stepEl = document.getElementById(`step-${step}`);
+      if (stepEl) {
+        stepEl.classList.remove('hidden');
+      }
+      
+      // Actualizar progreso
+      const progress = (step / totalSteps) * 100;
+      if (progressBar) progressBar.style.width = `${progress}%`;
+      if (progressText) progressText.textContent = `Paso ${step} de ${totalSteps}`;
+      
+      // Mostrar/ocultar botón atrás
+      if (step > 1 && step <= totalSteps) {
+        backBtn?.classList.remove('hidden');
+      } else {
+        backBtn?.classList.add('hidden');
+      }
+    }
+
+    // Función para ir al siguiente paso
+    function nextStep(selection: string, value: string) {
+      selections[selection] = value;
+      
+      // Marcar selección visualmente
+      const buttons = document.querySelectorAll(`[data-value="${value}"]`);
+      buttons.forEach(btn => {
+        btn.classList.add('border-yellow-500', 'bg-yellow-50');
+      });
+
+      // Si es perro, mostrar tamaño. Si no, saltar al paso de categoría
+      if (currentStep === 1 && value !== 'perro') {
+        currentStep = 3; // Saltamos el paso de tamaño
+      } else {
+        currentStep++;
+      }
+
+      if (currentStep > totalSteps) {
+        showResults();
+      } else {
+        showStep(currentStep);
+      }
+    }
+
+    // Función para retroceder
+    function prevStep() {
+      if (currentStep > 1) {
+        // Limpiar selección visual del paso actual
+        const currentStepEl = document.getElementById(`step-${currentStep}`);
+        currentStepEl?.querySelectorAll('[data-value]').forEach(btn => {
+          btn.classList.remove('border-yellow-500', 'bg-yellow-50');
+        });
+
+        // Si estamos en categoría y no es perro, volver a edad
+        if (currentStep === 4 && selections.animal_type !== 'perro') {
+          currentStep = 2;
+        } else {
+          currentStep--;
+        }
+        
+        showStep(currentStep);
+      }
+    }
+
+    // Función para mostrar resultados
+    async function showResults() {
+      // Ocultar navegación
+      navButtons?.classList.add('hidden');
+      
+      // Mostrar loading
+      document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById('loading-results')?.classList.remove('hidden');
+
+      try {
+        // Construir query
+        let query = supabase
+          .from('products')
+          .select('*')
+          .eq('animal_type', selections.animal_type);
+
+        if (selections.age_range) {
+          query = query.eq('age_range', selections.age_range);
+        }
+
+        if (selections.size && selections.animal_type === 'perro') {
+          query = query.eq('size', selections.size);
+        }
+
+        if (selections.category) {
+          query = query.eq('category', selections.category);
+        }
+
+        const { data: products, error } = await query.limit(6);
+
+        // Simular carga
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Ocultar loading
+        document.getElementById('loading-results')?.classList.add('hidden');
+        document.getElementById('step-results')?.classList.remove('hidden');
+
+        const resultsGrid = document.getElementById('results-grid');
+        
+        if (!products || products.length === 0) {
+          resultsGrid!.innerHTML = `
+            <div class="col-span-full text-center py-8">
+              <div class="text-6xl mb-4">😢</div>
+              <h3 class="text-xl font-bold text-gray-800 mb-2">No encontramos productos</h3>
+              <p class="text-gray-600 mb-6">Prueba con otros filtros o explora todo nuestro catálogo</p>
+              <a href="/productos" class="inline-block px-6 py-3 bg-yellow-500 text-white font-bold rounded-xl hover:bg-yellow-600 transition-colors">
+                Ver todos los productos
+              </a>
+            </div>
+          `;
+        } else {
+          resultsGrid!.innerHTML = products.map((product: any) => `
+            <a href="/producto/${product.slug || product.id}" class="block bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all group">
+              <div class="aspect-square bg-gray-100 p-4">
+                <img 
+                  src="${product.image_url || 'https://via.placeholder.com/300'}" 
+                  alt="${product.name}"
+                  class="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                />
+              </div>
+              <div class="p-4">
+                <h3 class="font-semibold text-gray-800 mb-2 line-clamp-2">${product.name}</h3>
+                <div class="flex items-baseline gap-2">
+                  ${product.on_sale && product.sale_price 
+                    ? `<span class="text-xl font-bold text-red-500">${product.sale_price.toFixed(2)}€</span>
+                       <span class="text-sm text-gray-400 line-through">${product.price.toFixed(2)}€</span>`
+                    : `<span class="text-xl font-bold text-gray-800">${product.price.toFixed(2)}€</span>`
+                  }
+                </div>
+              </div>
+            </a>
+          `).join('');
+        }
+
+      } catch (error) {
+        console.error('Error buscando productos:', error);
+        document.getElementById('loading-results')?.classList.add('hidden');
+        document.getElementById('step-results')?.classList.remove('hidden');
+        document.getElementById('results-grid')!.innerHTML = `
+          <div class="col-span-full text-center py-8">
+            <div class="text-6xl mb-4">⚠️</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Error al buscar productos</h3>
+            <p class="text-gray-600">Por favor, inténtalo de nuevo</p>
+          </div>
+        `;
+      }
+    }
+
+    // Función para reiniciar
+    function restart() {
+      currentStep = 1;
+      Object.keys(selections).forEach(key => selections[key] = '');
+      
+      // Limpiar selecciones visuales
+      document.querySelectorAll('[data-value]').forEach(btn => {
+        btn.classList.remove('border-yellow-500', 'bg-yellow-50');
+      });
+      
+      navButtons?.classList.remove('hidden');
+      showStep(1);
+    }
+
+    // Event listeners
+    document.querySelectorAll('.pet-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => nextStep('animal_type', (btn as HTMLElement).dataset.value!));
+    });
+
+    document.querySelectorAll('.age-btn').forEach(btn => {
+      btn.addEventListener('click', () => nextStep('age_range', (btn as HTMLElement).dataset.value!));
+    });
+
+    document.querySelectorAll('.size-btn').forEach(btn => {
+      btn.addEventListener('click', () => nextStep('size', (btn as HTMLElement).dataset.value!));
+    });
+
+    document.querySelectorAll('.category-btn').forEach(btn => {
+      btn.addEventListener('click', () => nextStep('category', (btn as HTMLElement).dataset.value!));
+    });
+
+    backBtn?.addEventListener('click', prevStep);
+    document.getElementById('restart-btn')?.addEventListener('click', restart);
+  </script>
+
+  <style>
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+</Layout>

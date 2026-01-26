@@ -1,0 +1,202 @@
+---
+// Componente de Ofertas Flash
+import { supabase } from '../lib/supabase';
+
+// Obtener productos en oferta
+const { data: ofertasProducts } = await supabase
+  .from('products')
+  .select('*')
+  .eq('on_sale', true)
+  .limit(6);
+
+// Verificar si las ofertas están activas (desde site_settings)
+const { data: settings } = await supabase
+  .from('site_settings')
+  .select('value')
+  .eq('key', 'ofertas_flash_active')
+  .single();
+
+const ofertasActive = settings?.value === 'true';
+const hasOfertas = ofertasProducts && ofertasProducts.length > 0;
+
+// Solo mostrar si hay ofertas Y están activas
+const showSection = ofertasActive && hasOfertas;
+---
+
+{showSection && (
+  <section class="py-6 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 relative overflow-hidden">
+    <!-- Efectos de fondo -->
+    <div class="absolute inset-0 opacity-20">
+      <div class="absolute top-0 left-0 w-20 h-20 bg-white rounded-full blur-2xl"></div>
+      <div class="absolute bottom-0 right-0 w-32 h-32 bg-yellow-300 rounded-full blur-2xl"></div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 relative z-10">
+      <!-- Header de la sección -->
+      <div class="text-center mb-4">
+        <div class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full mb-2 text-sm">
+          <span class="animate-pulse">🔥</span>
+          <span class="text-white font-bold">OFERTAS FLASH</span>
+          <span class="animate-pulse">⚡</span>
+        </div>
+        <h2 class="text-xl md:text-2xl font-bold text-white mb-1">
+          ¡Descuentos Increíbles!
+        </h2>
+        <p class="text-white/90 text-sm">Aprovecha antes de que se agoten</p>
+        
+        <!-- Contador regresivo -->
+        <div class="flex justify-center gap-2 mt-3" id="countdown-container">
+          <div class="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1 text-center min-w-[50px]">
+            <span id="countdown-hours" class="text-lg font-bold text-white">00</span>
+            <p class="text-[10px] text-white/80">Horas</p>
+          </div>
+          <div class="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1 text-center min-w-[50px]">
+            <span id="countdown-minutes" class="text-lg font-bold text-white">00</span>
+            <p class="text-[10px] text-white/80">Minutos</p>
+          </div>
+          <div class="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1 text-center min-w-[50px]">
+            <span id="countdown-seconds" class="text-lg font-bold text-white">00</span>
+            <p class="text-[10px] text-white/80">Segundos</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carrusel de productos -->
+      <div class="relative">
+        <div id="ofertas-carousel" class="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 scrollbar-hide justify-center">
+          {ofertasProducts?.map((product: any) => {
+            const discount = product.sale_price 
+              ? Math.round((1 - product.sale_price / product.price) * 100)
+              : 0;
+            
+            return (
+              <div class="flex-shrink-0 w-48 snap-center">
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300 group">
+                  <!-- Badge de descuento -->
+                  <div class="relative">
+                    <div class="absolute top-2 left-2 z-10">
+                      <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-lg">
+                        -{discount}%
+                      </span>
+                    </div>
+                    <div class="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 p-2">
+                      <img 
+                        src={product.image_url || 'https://via.placeholder.com/300'} 
+                        alt={product.name}
+                        class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="p-3">
+                    <h3 class="font-semibold text-gray-800 text-sm mb-1 line-clamp-2 min-h-[36px]">
+                      {product.name}
+                    </h3>
+                    
+                    <div class="flex items-baseline gap-1 mb-2">
+                      <span class="text-lg font-bold text-red-500">
+                        {product.sale_price?.toFixed(2)}€
+                      </span>
+                      <span class="text-xs text-gray-400 line-through">
+                        {product.price?.toFixed(2)}€
+                      </span>
+                    </div>
+
+                    <a 
+                      href={`/producto/${product.slug || product.id}`}
+                      class="block w-full text-center py-2 bg-gradient-to-r from-red-500 to-orange-500 text-white text-sm font-bold rounded-lg hover:from-red-600 hover:to-orange-600 transition-all"
+                    >
+                      ¡Lo quiero!
+                    </a>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <!-- Controles del carrusel -->
+        <button id="prev-oferta" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white/90 hover:bg-white shadow-lg rounded-full p-2 z-10 hidden lg:block">
+          <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </button>
+        <button id="next-oferta" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 bg-white/90 hover:bg-white shadow-lg rounded-full p-2 z-10 hidden lg:block">
+          <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Ver todas las ofertas -->
+      <div class="text-center mt-4">
+        <a 
+          href="/productos?ofertas=true" 
+          class="inline-flex items-center gap-2 bg-white text-orange-600 font-semibold text-sm px-5 py-2 rounded-full hover:bg-gray-100 transition-colors shadow-lg"
+        >
+          Ver todas las ofertas
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  // Countdown timer - resets cada 24 horas desde medianoche
+  function updateCountdown() {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    
+    const diff = tomorrow.getTime() - now.getTime();
+    
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    const hoursEl = document.getElementById('countdown-hours');
+    const minutesEl = document.getElementById('countdown-minutes');
+    const secondsEl = document.getElementById('countdown-seconds');
+    
+    if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
+    if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
+    if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
+  }
+
+  // Actualizar cada segundo
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  // Controles del carrusel
+  const carousel = document.getElementById('ofertas-carousel');
+  const prevBtn = document.getElementById('prev-oferta');
+  const nextBtn = document.getElementById('next-oferta');
+
+  prevBtn?.addEventListener('click', () => {
+    carousel?.scrollBy({ left: -300, behavior: 'smooth' });
+  });
+
+  nextBtn?.addEventListener('click', () => {
+    carousel?.scrollBy({ left: 300, behavior: 'smooth' });
+  });
+</script>

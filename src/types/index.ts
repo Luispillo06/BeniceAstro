@@ -5,10 +5,14 @@ export interface Product {
   price: number;
   stock: number;
   image_url: string;
+  images?: string[];
   animal_type: 'perro' | 'gato' | 'otros';
   size: 'mini' | 'mediano' | 'grande';
   category: 'alimentacion' | 'higiene' | 'salud' | 'accesorios' | 'juguetes';
   age_range: 'cachorro' | 'adulto' | 'senior';
+  on_sale?: boolean;
+  sale_price?: number;
+  slug?: string;
   created_at: string;
 }
 
@@ -16,6 +20,7 @@ export interface User {
   id: string;
   email: string;
   full_name?: string;
+  role?: 'user' | 'admin';
   created_at: string;
 }
 

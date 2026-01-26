@@ -1,0 +1,312 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { supabase } from '../../../lib/supabase';
+
+// Proteger ruta - solo admins
+const { data: { session } } = await supabase.auth.getSession();
+
+if (!session) {
+  return Astro.redirect('/login');
+}
+
+const { data: userData } = await supabase
+  .from('users')
+  .select('role')
+  .eq('id', session.user.id)
+  .single();
+
+if (!userData || userData.role !== 'admin') {
+  return Astro.redirect('/');
+}
+---
+
+<Layout title="Nuevo Producto - Admin">
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800">Nuevo Producto</h1>
+        <p class="text-gray-600 mt-1">Añade un nuevo producto al catálogo</p>
+      </div>
+      <a href="/admin/productos" class="btn bg-gray-200 text-gray-700 hover:bg-gray-300">
+        ← Volver al listado
+      </a>
+    </div>
+
+    <!-- Formulario -->
+    <form id="product-form" class="bg-white rounded-lg shadow p-6 space-y-6">
+      <!-- Información básica -->
+      <div class="border-b pb-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">📦 Información Básica</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Nombre del Producto *
+            </label>
+            <input type="text" name="name" required
+              class="input w-full" placeholder="Ej: Pienso Premium para Perros Adultos" />
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Descripción
+            </label>
+            <textarea name="description" rows="4"
+              class="input w-full" placeholder="Describe el producto, sus beneficios, ingredientes..."></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Precio (€) *
+            </label>
+            <input type="number" name="price" step="0.01" min="0" required
+              class="input w-full" placeholder="29.99" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Stock *
+            </label>
+            <input type="number" name="stock" min="0" required
+              class="input w-full" placeholder="100" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Clasificación -->
+      <div class="border-b pb-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Clasificación</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Especie *
+            </label>
+            <select name="animal_type" required class="input w-full">
+              <option value="">Seleccionar...</option>
+              <option value="perro">Perro</option>
+              <option value="gato">Gato</option>
+              <option value="otros">Otros</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Categoría *
+            </label>
+            <select name="category" required class="input w-full">
+              <option value="">Seleccionar...</option>
+              <option value="alimentacion">🍖 Alimentación</option>
+              <option value="higiene">🧴 Higiene</option>
+              <option value="salud">💊 Salud</option>
+              <option value="accesorios">🎀 Accesorios</option>
+              <option value="juguetes">🎾 Juguetes</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Tamaño
+            </label>
+            <select name="size" class="input w-full">
+              <option value="mediano">Mediano</option>
+              <option value="mini">Mini</option>
+              <option value="grande">Grande</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Edad
+            </label>
+            <select name="age_range" class="input w-full">
+              <option value="adulto">Adulto</option>
+              <option value="cachorro">Cachorro</option>
+              <option value="senior">Senior</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Imagen -->
+      <div class="border-b pb-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">📸 Imagen</h2>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            URL de la Imagen
+          </label>
+          <input type="url" name="image_url"
+            class="input w-full" placeholder="https://ejemplo.com/imagen.jpg" />
+          <p class="text-xs text-gray-500 mt-1">
+            Introduce la URL de una imagen. En futuras versiones podrás subir imágenes directamente.
+          </p>
+        </div>
+
+        <div class="mt-4">
+          <div id="image-preview" class="hidden">
+            <p class="text-sm font-medium text-gray-700 mb-2">Vista previa:</p>
+            <img id="preview-img" class="w-48 h-48 object-cover rounded-lg border" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Oferta -->
+      <div class="border-b pb-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">🔥 Oferta</h2>
+        
+        <div class="flex items-start gap-4">
+          <label class="flex items-center cursor-pointer">
+            <input type="checkbox" name="on_sale" id="on-sale-toggle"
+              class="w-5 h-5 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400" />
+            <span class="ml-2 text-sm font-medium text-gray-700">Producto en oferta</span>
+          </label>
+        </div>
+
+        <div id="sale-price-container" class="hidden mt-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Precio de Oferta (€)
+          </label>
+          <input type="number" name="sale_price" step="0.01" min="0"
+            class="input w-48" placeholder="19.99" />
+          <p class="text-xs text-gray-500 mt-1">
+            Este precio se mostrará en lugar del precio normal cuando la oferta esté activa.
+          </p>
+        </div>
+      </div>
+
+      <!-- URL amigable -->
+      <div class="border-b pb-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">🔗 URL Amigable</h2>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Slug (URL)
+          </label>
+          <div class="flex items-center">
+            <span class="text-gray-500">/producto/</span>
+            <input type="text" name="slug" id="slug-input"
+              class="input flex-1 ml-1" placeholder="pienso-premium-perros-adultos" />
+          </div>
+          <p class="text-xs text-gray-500 mt-1">
+            Se genera automáticamente del nombre. Puedes editarlo manualmente.
+          </p>
+        </div>
+      </div>
+
+      <!-- Mensajes -->
+      <div id="error-message" class="hidden p-4 bg-red-100 text-red-700 rounded-lg"></div>
+      <div id="success-message" class="hidden p-4 bg-green-100 text-green-700 rounded-lg"></div>
+
+      <!-- Botones -->
+      <div class="flex justify-end gap-4">
+        <a href="/admin/productos" class="btn bg-gray-200 text-gray-700 hover:bg-gray-300">
+          Cancelar
+        </a>
+        <button type="submit" class="btn btn-primary">
+          💾 Guardar Producto
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    import { supabase } from '../../../lib/supabase';
+
+    const form = document.getElementById('product-form') as HTMLFormElement;
+    const nameInput = form.querySelector('input[name="name"]') as HTMLInputElement;
+    const slugInput = document.getElementById('slug-input') as HTMLInputElement;
+    const imageInput = form.querySelector('input[name="image_url"]') as HTMLInputElement;
+    const imagePreview = document.getElementById('image-preview');
+    const previewImg = document.getElementById('preview-img') as HTMLImageElement;
+    const onSaleToggle = document.getElementById('on-sale-toggle') as HTMLInputElement;
+    const salePriceContainer = document.getElementById('sale-price-container');
+    const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+
+    // Generar slug automáticamente
+    nameInput?.addEventListener('input', () => {
+      const slug = nameInput.value
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+      slugInput.value = slug;
+    });
+
+    // Vista previa de imagen
+    imageInput?.addEventListener('input', () => {
+      if (imageInput.value) {
+        previewImg.src = imageInput.value;
+        imagePreview?.classList.remove('hidden');
+      } else {
+        imagePreview?.classList.add('hidden');
+      }
+    });
+
+    // Toggle oferta
+    onSaleToggle?.addEventListener('change', () => {
+      if (onSaleToggle.checked) {
+        salePriceContainer?.classList.remove('hidden');
+      } else {
+        salePriceContainer?.classList.add('hidden');
+      }
+    });
+
+    // Enviar formulario
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      errorMessage?.classList.add('hidden');
+      successMessage?.classList.add('hidden');
+
+      const formData = new FormData(form);
+      const data = {
+        name: formData.get('name'),
+        description: formData.get('description'),
+        price: formData.get('price'),
+        stock: formData.get('stock'),
+        animal_type: formData.get('animal_type'),
+        category: formData.get('category'),
+        size: formData.get('size'),
+        age_range: formData.get('age_range'),
+        image_url: formData.get('image_url'),
+        on_sale: formData.get('on_sale') === 'on',
+        sale_price: formData.get('sale_price') || null,
+        slug: formData.get('slug')
+      };
+
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        const response = await fetch('/api/admin/products', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          successMessage!.textContent = '✅ Producto creado exitosamente. Redirigiendo...';
+          successMessage?.classList.remove('hidden');
+          
+          setTimeout(() => {
+            window.location.href = '/admin/productos';
+          }, 1500);
+        } else {
+          errorMessage!.textContent = result.error || 'Error al crear el producto';
+          errorMessage?.classList.remove('hidden');
+        }
+      } catch (error: any) {
+        errorMessage!.textContent = error.message || 'Error al crear el producto';
+        errorMessage?.classList.remove('hidden');
+      }
+    });
+  </script>
+</Layout>

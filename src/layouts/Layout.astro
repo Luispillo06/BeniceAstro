@@ -1,12 +1,16 @@
 ---
 import '../styles/global.css';
+import NewsletterPopup from '../components/NewsletterPopup.astro';
+import CartButton from '../components/CartButton.tsx';
+import CartSlideOver from '../components/CartSlideOver.tsx';
 
 interface Props {
   title: string;
   description?: string;
+  hideNewsletterPopup?: boolean;
 }
 
-const { title, description = 'Tienda online de productos para mascotas' } = Astro.props;
+const { title, description = 'Tienda online de productos para mascotas', hideNewsletterPopup = false } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -24,9 +28,12 @@ const { title, description = 'Tienda online de productos para mascotas' } = Astr
       <div class="flex justify-between items-center h-16">
         <div class="flex items-center space-x-8">
           <a href="/" class="text-2xl font-bold text-yellow-600">
-            🐾 Venice
+            Venice
           </a>
           <a href="/productos" class="text-gray-700 hover:text-yellow-600">Productos</a>
+          <a href="/recomendador" class="text-gray-700 hover:text-yellow-600">
+            Recomendador
+          </a>
           <a href="/sobre-nosotros" class="text-gray-700 hover:text-yellow-600">Sobre Nosotros</a>
         </div>
         
@@ -42,12 +49,8 @@ const { title, description = 'Tienda online de productos para mascotas' } = Astr
             <div id="search-results" class="absolute z-50 w-full mt-2 bg-white rounded-lg shadow-lg hidden max-h-96 overflow-y-auto"></div>
           </div>
 
-          <a href="/carrito" class="relative text-gray-700 hover:text-yellow-600">
-            🛒
-            <span id="cart-count" class="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              0
-            </span>
-          </a>
+          <!-- Carrito React -->
+          <CartButton client:load />
           
           <div id="auth-buttons">
             <a href="/login" class="btn btn-primary">Iniciar Sesión</a>
@@ -78,11 +81,17 @@ const { title, description = 'Tienda online de productos para mascotas' } = Astr
     <slot />
   </main>
 
+  <!-- Carrito Slide-Over React -->
+  <CartSlideOver client:load />
+
+  <!-- Newsletter Popup -->
+  {!hideNewsletterPopup && <NewsletterPopup />}
+
   <footer class="bg-gray-800 text-white mt-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div>
-          <h3 class="text-lg font-bold mb-4">🐾 Venice</h3>
+          <h3 class="text-lg font-bold mb-4">Venice</h3>
           <p class="text-gray-400">Tu tienda de confianza para productos de mascotas</p>
         </div>
         <div>

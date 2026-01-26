@@ -1,0 +1,115 @@
+---
+// Componente para activar/desactivar ofertas flash (solo admin)
+import { supabase } from '../lib/supabase';
+
+// Obtener estado actual
+const { data: settings } = await supabase
+  .from('site_settings')
+  .select('value')
+  .eq('key', 'ofertas_flash_active')
+  .single();
+
+const isActive = settings?.value === 'true';
+---
+
+<div class="bg-white rounded-xl shadow-md p-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+        🔥 Ofertas Flash
+      </h3>
+      <p class="text-sm text-gray-500 mt-1">
+        Activa o desactiva la sección de ofertas en la página principal
+      </p>
+    </div>
+    
+    <label class="relative inline-flex items-center cursor-pointer">
+      <input 
+        type="checkbox" 
+        id="ofertas-toggle" 
+        class="sr-only peer"
+        checked={isActive}
+      />
+      <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yellow-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-yellow-400 peer-checked:to-orange-500"></div>
+      <span id="toggle-status" class="ms-3 text-sm font-medium text-gray-700">
+        {isActive ? 'Activo' : 'Inactivo'}
+      </span>
+    </label>
+  </div>
+
+  <!-- Info adicional -->
+  <div class="mt-4 p-4 bg-yellow-50 rounded-lg">
+    <p class="text-sm text-yellow-800">
+      <strong>💡 Tip:</strong> Para que aparezcan productos en ofertas, márcalos como "En oferta" y establece un precio de oferta en la gestión de productos.
+    </p>
+  </div>
+</div>
+
+<script>
+  import { supabase } from '../lib/supabase';
+
+  const toggle = document.getElementById('ofertas-toggle') as HTMLInputElement;
+  const statusSpan = document.getElementById('toggle-status');
+
+  toggle?.addEventListener('change', async () => {
+    const isActive = toggle.checked;
+    
+    // Actualizar UI inmediatamente
+    if (statusSpan) {
+      statusSpan.textContent = isActive ? 'Activo' : 'Inactivo';
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        alert('No tienes sesión activa');
+        toggle.checked = !isActive; // Revertir
+        return;
+      }
+
+      const response = await fetch('/api/admin/ofertas-toggle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ active: isActive })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error);
+      }
+
+      // Mostrar notificación
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+      toast.textContent = `Ofertas Flash ${isActive ? 'activadas' : 'desactivadas'}`;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+
+    } catch (error: any) {
+      console.error('Error:', error);
+      alert('Error al actualizar: ' + error.message);
+      toggle.checked = !isActive; // Revertir
+      if (statusSpan) {
+        statusSpan.textContent = !isActive ? 'Activo' : 'Inactivo';
+      }
+    }
+  });
+</script>
+
+<style>
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+</style>

@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import OfertasFlash from '../components/OfertasFlash.astro';
 import { supabase } from '../lib/supabase';
 
 // Obtener productos
@@ -18,11 +19,14 @@ const hasProducts = products && products.length > 0;
     <div class="bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-400 py-8">
       <div class="max-w-7xl mx-auto px-4 text-center">
         <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-          🐾 Venice - Tu tienda de mascotas
+          Venice - Tu tienda de mascotas
         </h1>
         <p class="text-gray-800">Todo lo que tu mascota necesita en un solo lugar</p>
       </div>
     </div>
+
+    <!-- Sección de Ofertas Flash -->
+    <OfertasFlash />
 
     <div class="max-w-7xl mx-auto px-4 py-6">
       <div class="flex gap-8">

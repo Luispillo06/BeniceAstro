@@ -1,0 +1,147 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
+
+// Obtener session_id de la URL
+const sessionId = Astro.url.searchParams.get('session_id');
+
+// Verificar la sesión si es necesario
+let orderDetails = null;
+---
+
+<Layout title="¡Pago Exitoso!" hideNewsletterPopup={true}>
+  <div class="min-h-screen bg-gradient-to-b from-green-50 to-white py-16">
+    <div class="max-w-2xl mx-auto px-4 text-center">
+      
+      <!-- Animación de éxito -->
+      <div class="mb-8">
+        <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce-slow">
+          <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">
+          ¡Gracias por tu compra! 🎉
+        </h1>
+        <p class="text-xl text-gray-600">
+          Tu pedido ha sido procesado correctamente
+        </p>
+      </div>
+
+      <!-- Detalles del pedido -->
+      <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+        <div class="text-6xl mb-4">📦</div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Pedido Confirmado</h2>
+        
+        <div class="text-left space-y-4">
+          <div class="flex justify-between py-3 border-b border-gray-100">
+            <span class="text-gray-600">Número de referencia</span>
+            <span class="font-mono text-sm bg-gray-100 px-3 py-1 rounded">
+              {sessionId?.substring(0, 20)}...
+            </span>
+          </div>
+          <div class="flex justify-between py-3 border-b border-gray-100">
+            <span class="text-gray-600">Estado</span>
+            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+              Pagado ✓
+            </span>
+          </div>
+          <div class="flex justify-between py-3">
+            <span class="text-gray-600">Próximo paso</span>
+            <span class="text-gray-800">Preparando envío</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Qué esperar -->
+      <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-8">
+        <h3 class="font-bold text-yellow-800 mb-3">📧 ¿Qué sigue?</h3>
+        <ul class="text-left text-yellow-800 space-y-2">
+          <li class="flex items-start gap-2">
+            <span>1.</span>
+            <span>Recibirás un email de confirmación con los detalles de tu pedido</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span>2.</span>
+            <span>Te notificaremos cuando tu pedido sea enviado</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span>3.</span>
+            <span>Podrás hacer seguimiento desde "Mis Pedidos"</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a 
+          href="/mis-pedidos" 
+          class="px-8 py-4 bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 font-bold rounded-xl hover:from-yellow-500 hover:to-orange-500 transition-all shadow-lg"
+        >
+          Ver mis pedidos
+        </a>
+        <a 
+          href="/productos" 
+          class="px-8 py-4 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:border-yellow-400 hover:text-yellow-600 transition-all"
+        >
+          Seguir comprando
+        </a>
+      </div>
+
+      <!-- Confetti animation -->
+      <div id="confetti-container" class="fixed inset-0 pointer-events-none overflow-hidden z-50"></div>
+    </div>
+  </div>
+
+  <style>
+    @keyframes bounce-slow {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .animate-bounce-slow {
+      animation: bounce-slow 2s ease-in-out infinite;
+    }
+
+    @keyframes confetti-fall {
+      0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      animation: confetti-fall 3s ease-in-out forwards;
+    }
+  </style>
+
+  <script>
+    import { clearCart } from '../../stores/cart';
+
+    // Limpiar carrito después de pago exitoso
+    clearCart();
+
+    // Efecto de confetti
+    function createConfetti() {
+      const container = document.getElementById('confetti-container');
+      const colors = ['#fbbf24', '#f97316', '#22c55e', '#3b82f6', '#ec4899'];
+      
+      for (let i = 0; i < 50; i++) {
+        setTimeout(() => {
+          const confetti = document.createElement('div');
+          confetti.className = 'confetti';
+          confetti.style.left = `${Math.random() * 100}vw`;
+          confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+          confetti.style.animationDelay = `${Math.random() * 2}s`;
+          confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+          container?.appendChild(confetti);
+
+          // Eliminar después de la animación
+          setTimeout(() => confetti.remove(), 5000);
+        }, i * 50);
+      }
+    }
+
+    createConfetti();
+  </script>
+</Layout>

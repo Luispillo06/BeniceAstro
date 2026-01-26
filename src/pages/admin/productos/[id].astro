@@ -1,0 +1,373 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { supabase } from '../../../lib/supabase';
+
+// Proteger ruta - solo admins
+const { data: { session } } = await supabase.auth.getSession();
+
+if (!session) {
+  return Astro.redirect('/login');
+}
+
+const { data: userData } = await supabase
+  .from('users')
+  .select('role')
+  .eq('id', session.user.id)
+  .single();
+
+if (!userData || userData.role !== 'admin') {
+  return Astro.redirect('/');
+}
+
+// Obtener ID del producto
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect('/admin/productos');
+}
+
+// Obtener producto
+const { data: product, error } = await supabase
+  .from('products')
+  .select('*')
+  .eq('id', id)
+  .single();
+
+if (error || !product) {
+  return Astro.redirect('/admin/productos');
+}
+---
+
+<Layout title={`Editar: ${product.name} - Admin`}>
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800">Editar Producto</h1>
+        <p class="text-gray-600 mt-1">Modifica los datos del producto</p>
+      </div>
+      <a href="/admin/productos" class="btn bg-gray-200 text-gray-700 hover:bg-gray-300">
+        ← Volver al listado
+      </a>
+    </div>
+
+    <!-- Formulario -->
+    <form id="product-form" class="bg-white rounded-lg shadow p-6 space-y-6" data-id={product.id}>
+      <!-- Información básica -->
+      <div class="border-b pb-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">📦 Información Básica</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Nombre del Producto *
+            </label>
+            <input type="text" name="name" required value={product.name}
+              class="input w-full" placeholder="Ej: Pienso Premium para Perros Adultos" />
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Descripción
+            </label>
+            <textarea name="description" rows="4"
+              class="input w-full" placeholder="Describe el producto...">{product.description}</textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Precio (€) *
+            </label>
+            <input type="number" name="price" step="0.01" min="0" required value={product.price}
+              class="input w-full" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Stock *
+            </label>
+            <input type="number" name="stock" min="0" required value={product.stock}
+              class="input w-full" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Clasificación -->
+      <div class="border-b pb-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Clasificación</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Especie *
+            </label>
+            <select name="animal_type" required class="input w-full">
+              <option value="perro" selected={product.animal_type === 'perro'}>Perro</option>
+              <option value="gato" selected={product.animal_type === 'gato'}>Gato</option>
+              <option value="otros" selected={product.animal_type === 'otros'}>Otros</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Categoría *
+            </label>
+            <select name="category" required class="input w-full">
+              <option value="alimentacion" selected={product.category === 'alimentacion'}>🍖 Alimentación</option>
+              <option value="higiene" selected={product.category === 'higiene'}>🧴 Higiene</option>
+              <option value="salud" selected={product.category === 'salud'}>💊 Salud</option>
+              <option value="accesorios" selected={product.category === 'accesorios'}>🎀 Accesorios</option>
+              <option value="juguetes" selected={product.category === 'juguetes'}>🎾 Juguetes</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Tamaño
+            </label>
+            <select name="size" class="input w-full">
+              <option value="mini" selected={product.size === 'mini'}>Mini</option>
+              <option value="mediano" selected={product.size === 'mediano'}>Mediano</option>
+              <option value="grande" selected={product.size === 'grande'}>Grande</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Edad
+            </label>
+            <select name="age_range" class="input w-full">
+              <option value="cachorro" selected={product.age_range === 'cachorro'}>Cachorro</option>
+              <option value="adulto" selected={product.age_range === 'adulto'}>Adulto</option>
+              <option value="senior" selected={product.age_range === 'senior'}>Senior</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Imagen -->
+      <div class="border-b pb-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">📸 Imagen</h2>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            URL de la Imagen
+          </label>
+          <input type="url" name="image_url" value={product.image_url || ''}
+            class="input w-full" placeholder="https://ejemplo.com/imagen.jpg" />
+        </div>
+
+        <div class="mt-4">
+          <p class="text-sm font-medium text-gray-700 mb-2">Imagen actual:</p>
+          <img id="preview-img" 
+               src={product.image_url || 'https://via.placeholder.com/200?text=Sin+imagen'} 
+               class="w-48 h-48 object-cover rounded-lg border" 
+               alt={product.name} />
+        </div>
+      </div>
+
+      <!-- Oferta -->
+      <div class="border-b pb-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">🔥 Oferta</h2>
+        
+        <div class="flex items-start gap-4">
+          <label class="flex items-center cursor-pointer">
+            <input type="checkbox" name="on_sale" id="on-sale-toggle"
+              checked={product.on_sale}
+              class="w-5 h-5 rounded border-gray-300 text-yellow-500 focus:ring-yellow-400" />
+            <span class="ml-2 text-sm font-medium text-gray-700">Producto en oferta</span>
+          </label>
+        </div>
+
+        <div id="sale-price-container" class={product.on_sale ? 'mt-4' : 'hidden mt-4'}>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Precio de Oferta (€)
+          </label>
+          <input type="number" name="sale_price" step="0.01" min="0"
+            value={product.sale_price || ''}
+            class="input w-48" placeholder="19.99" />
+        </div>
+      </div>
+
+      <!-- URL amigable -->
+      <div class="border-b pb-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">🔗 URL Amigable</h2>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Slug (URL)
+          </label>
+          <div class="flex items-center">
+            <span class="text-gray-500">/producto/</span>
+            <input type="text" name="slug" id="slug-input" value={product.slug || ''}
+              class="input flex-1 ml-1" placeholder="pienso-premium-perros-adultos" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Info del producto -->
+      <div class="bg-gray-50 rounded-lg p-4 text-sm text-gray-600">
+        <p><strong>ID:</strong> {product.id}</p>
+        <p><strong>Creado:</strong> {new Date(product.created_at).toLocaleString('es-ES')}</p>
+      </div>
+
+      <!-- Mensajes -->
+      <div id="error-message" class="hidden p-4 bg-red-100 text-red-700 rounded-lg"></div>
+      <div id="success-message" class="hidden p-4 bg-green-100 text-green-700 rounded-lg"></div>
+
+      <!-- Botones -->
+      <div class="flex justify-between">
+        <button type="button" id="delete-btn" class="btn bg-red-100 text-red-700 hover:bg-red-200">
+          🗑️ Eliminar Producto
+        </button>
+        <div class="flex gap-4">
+          <a href="/admin/productos" class="btn bg-gray-200 text-gray-700 hover:bg-gray-300">
+            Cancelar
+          </a>
+          <button type="submit" class="btn btn-primary">
+            💾 Guardar Cambios
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Modal de confirmación de eliminación -->
+  <div id="delete-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-md w-full p-6">
+      <h3 class="text-xl font-bold text-gray-800 mb-4">⚠️ Confirmar Eliminación</h3>
+      <p class="text-gray-600 mb-2">¿Estás seguro de que quieres eliminar el producto:</p>
+      <p class="font-bold text-gray-800 mb-4">{product.name}</p>
+      <p class="text-sm text-red-600 mb-6">Esta acción no se puede deshacer.</p>
+      <div class="flex gap-3 justify-end">
+        <button id="cancel-delete" class="btn bg-gray-200 text-gray-700 hover:bg-gray-300">
+          Cancelar
+        </button>
+        <button id="confirm-delete" class="btn bg-red-600 text-white hover:bg-red-700">
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    import { supabase } from '../../../lib/supabase';
+
+    const form = document.getElementById('product-form') as HTMLFormElement;
+    const productId = form.dataset.id;
+    const imageInput = form.querySelector('input[name="image_url"]') as HTMLInputElement;
+    const previewImg = document.getElementById('preview-img') as HTMLImageElement;
+    const onSaleToggle = document.getElementById('on-sale-toggle') as HTMLInputElement;
+    const salePriceContainer = document.getElementById('sale-price-container');
+    const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+    const deleteBtn = document.getElementById('delete-btn');
+    const deleteModal = document.getElementById('delete-modal');
+    const cancelDelete = document.getElementById('cancel-delete');
+    const confirmDelete = document.getElementById('confirm-delete');
+
+    // Vista previa de imagen
+    imageInput?.addEventListener('input', () => {
+      if (imageInput.value) {
+        previewImg.src = imageInput.value;
+      }
+    });
+
+    // Toggle oferta
+    onSaleToggle?.addEventListener('change', () => {
+      if (onSaleToggle.checked) {
+        salePriceContainer?.classList.remove('hidden');
+      } else {
+        salePriceContainer?.classList.add('hidden');
+      }
+    });
+
+    // Enviar formulario (actualizar)
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      errorMessage?.classList.add('hidden');
+      successMessage?.classList.add('hidden');
+
+      const formData = new FormData(form);
+      const data = {
+        id: productId,
+        name: formData.get('name'),
+        description: formData.get('description'),
+        price: formData.get('price'),
+        stock: formData.get('stock'),
+        animal_type: formData.get('animal_type'),
+        category: formData.get('category'),
+        size: formData.get('size'),
+        age_range: formData.get('age_range'),
+        image_url: formData.get('image_url'),
+        on_sale: formData.get('on_sale') === 'on',
+        sale_price: formData.get('sale_price') || null,
+        slug: formData.get('slug')
+      };
+
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        const response = await fetch('/api/admin/products', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          successMessage!.textContent = '✅ Producto actualizado exitosamente';
+          successMessage?.classList.remove('hidden');
+          
+          // Scroll al mensaje
+          successMessage?.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          errorMessage!.textContent = result.error || 'Error al actualizar el producto';
+          errorMessage?.classList.remove('hidden');
+        }
+      } catch (error: any) {
+        errorMessage!.textContent = error.message || 'Error al actualizar el producto';
+        errorMessage?.classList.remove('hidden');
+      }
+    });
+
+    // Modal de eliminación
+    deleteBtn?.addEventListener('click', () => {
+      deleteModal?.classList.remove('hidden');
+    });
+
+    cancelDelete?.addEventListener('click', () => {
+      deleteModal?.classList.add('hidden');
+    });
+
+    confirmDelete?.addEventListener('click', async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        const response = await fetch(`/api/admin/products?id=${productId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${session?.access_token}`
+          }
+        });
+
+        if (response.ok) {
+          window.location.href = '/admin/productos';
+        } else {
+          const result = await response.json();
+          alert(result.error || 'Error al eliminar producto');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al eliminar producto');
+      }
+
+      deleteModal?.classList.add('hidden');
+    });
+  </script>
+</Layout>

@@ -1,0 +1,378 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
+
+// Obtener el slug o id del producto
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect('/productos');
+}
+
+// Buscar producto por slug o por id
+let product = null;
+
+// Primero intentar por slug
+const { data: productBySlug } = await supabase
+  .from('products')
+  .select('*')
+  .eq('slug', slug)
+  .single();
+
+if (productBySlug) {
+  product = productBySlug;
+} else {
+  // Si no existe por slug, intentar por id
+  const { data: productById } = await supabase
+    .from('products')
+    .select('*')
+    .eq('id', slug)
+    .single();
+  product = productById;
+}
+
+if (!product) {
+  return Astro.redirect('/productos');
+}
+
+// Obtener productos relacionados (misma categoría y especie)
+const { data: relatedProducts } = await supabase
+  .from('products')
+  .select('*')
+  .eq('animal_type', product.animal_type)
+  .eq('category', product.category)
+  .neq('id', product.id)
+  .limit(4);
+
+// Calcular precio a mostrar
+const displayPrice = product.on_sale && product.sale_price ? product.sale_price : product.price;
+const hasDiscount = product.on_sale && product.sale_price && product.sale_price < product.price;
+const discountPercent = hasDiscount 
+  ? Math.round((1 - product.sale_price / product.price) * 100) 
+  : 0;
+---
+
+<Layout title={`${product.name} - Venice`}>
+  <div class="bg-white min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+      
+      <!-- Breadcrumb -->
+      <nav class="text-sm mb-6">
+        <ol class="flex items-center space-x-2 text-gray-500">
+          <li><a href="/" class="hover:text-yellow-600">Inicio</a></li>
+          <li><span class="mx-2">›</span></li>
+          <li><a href="/productos" class="hover:text-yellow-600">Productos</a></li>
+          <li><span class="mx-2">›</span></li>
+          <li class="text-gray-800 font-medium truncate max-w-xs">{product.name}</li>
+        </ol>
+      </nav>
+
+      <!-- Producto Principal -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+        
+        <!-- Galería de Imágenes -->
+        <div class="space-y-4">
+          <!-- Imagen Principal -->
+          <div class="relative aspect-square bg-gray-100 rounded-2xl overflow-hidden">
+            {hasDiscount && (
+              <div class="absolute top-4 left-4 z-10">
+                <span class="bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full">
+                  -{discountPercent}%
+                </span>
+              </div>
+            )}
+            <img 
+              id="main-image"
+              src={product.image_url || 'https://via.placeholder.com/600?text=Sin+imagen'} 
+              alt={product.name}
+              class="w-full h-full object-contain p-8 transition-transform hover:scale-105"
+            />
+          </div>
+          
+          <!-- Thumbnails (si hay múltiples imágenes) -->
+          {product.images && product.images.length > 1 && (
+            <div class="flex gap-3 overflow-x-auto pb-2">
+              {product.images.map((img: string, index: number) => (
+                <button 
+                  class="thumbnail flex-shrink-0 w-20 h-20 rounded-lg border-2 border-gray-200 overflow-hidden hover:border-yellow-500 transition-colors"
+                  data-image={img}
+                >
+                  <img src={img} alt={`${product.name} - ${index + 1}`} class="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <!-- Información del Producto -->
+        <div class="space-y-6">
+          <!-- Badges -->
+          <div class="flex flex-wrap gap-2">
+            <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full">
+              {product.animal_type === 'perro' ? 'Perro' : product.animal_type === 'gato' ? 'Gato' : 'Otros'}
+            </span>
+            <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+              {product.category}
+            </span>
+            <span class="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
+              {product.size}
+            </span>
+            <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
+              {product.age_range}
+            </span>
+          </div>
+
+          <!-- Nombre -->
+          <h1 class="text-3xl font-bold text-gray-900">{product.name}</h1>
+
+          <!-- Valoración (placeholder) -->
+          <div class="flex items-center gap-2">
+            <div class="flex text-yellow-400">
+              <svg class="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+              <svg class="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+              <svg class="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+              <svg class="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+              <svg class="w-5 h-5 fill-current text-gray-300" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+            </div>
+            <span class="text-gray-600">(4.5) • 127 valoraciones</span>
+          </div>
+
+          <!-- Precio -->
+          <div class="space-y-1">
+            {hasDiscount ? (
+              <div class="flex items-baseline gap-3">
+                <span class="text-4xl font-bold text-red-600">{displayPrice}€</span>
+                <span class="text-xl text-gray-400 line-through">{product.price}€</span>
+                <span class="text-sm font-medium text-red-600 bg-red-100 px-2 py-1 rounded">
+                  Ahorras {(product.price - product.sale_price).toFixed(2)}€
+                </span>
+              </div>
+            ) : (
+              <span class="text-4xl font-bold text-gray-900">{product.price}€</span>
+            )}
+            <p class="text-sm text-gray-500">IVA incluido</p>
+          </div>
+
+          <!-- Stock -->
+          <div class="flex items-center gap-2">
+            {product.stock > 10 ? (
+              <span class="flex items-center text-green-600 font-medium">
+                <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                En stock ({product.stock} disponibles)
+              </span>
+            ) : product.stock > 0 ? (
+              <span class="flex items-center text-yellow-600 font-medium">
+                <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                ¡Últimas unidades! ({product.stock})
+              </span>
+            ) : (
+              <span class="flex items-center text-red-600 font-medium">
+                <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+                Agotado
+              </span>
+            )}
+          </div>
+
+          <!-- Cantidad y Añadir al Carrito -->
+          <div class="border-t border-b py-6 space-y-4">
+            <div class="flex items-center gap-4">
+              <label class="font-medium text-gray-700">Cantidad:</label>
+              <div class="flex items-center border rounded-lg">
+                <button id="decrease-qty" class="px-4 py-2 text-gray-600 hover:bg-gray-100 transition-colors">
+                  −
+                </button>
+                <input 
+                  type="number" 
+                  id="quantity" 
+                  value="1" 
+                  min="1" 
+                  max={product.stock}
+                  class="w-16 text-center border-x py-2 focus:outline-none"
+                />
+                <button id="increase-qty" class="px-4 py-2 text-gray-600 hover:bg-gray-100 transition-colors">
+                  +
+                </button>
+              </div>
+            </div>
+
+            <button 
+              id="add-to-cart-btn"
+              class={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
+                product.stock > 0 
+                  ? 'bg-yellow-500 text-white hover:bg-yellow-600 hover:shadow-lg' 
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+              disabled={product.stock === 0}
+              data-product-id={product.id}
+              data-product-name={product.name}
+              data-product-price={displayPrice}
+              data-product-image={product.image_url}
+              data-product-stock={product.stock}
+            >
+              {product.stock > 0 ? '🛒 Añadir al Carrito' : 'Sin Stock'}
+            </button>
+
+            <p class="text-center text-sm text-gray-500">
+              🚚 Envío gratis en pedidos superiores a 49€
+            </p>
+          </div>
+
+          <!-- Descripción -->
+          <div class="space-y-3">
+            <h2 class="text-lg font-semibold text-gray-800">Descripción</h2>
+            <p class="text-gray-600 leading-relaxed">
+              {product.description || 'Sin descripción disponible.'}
+            </p>
+          </div>
+
+          <!-- Características -->
+          <div class="bg-gray-50 rounded-xl p-6 space-y-3">
+            <h2 class="text-lg font-semibold text-gray-800">Características</h2>
+            <ul class="space-y-2 text-gray-600">
+              <li class="flex items-center gap-2">
+                <span class="text-yellow-500">✓</span>
+                <strong>Especie:</strong> {product.animal_type === 'perro' ? 'Perro' : product.animal_type === 'gato' ? 'Gato' : 'Otros animales'}
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="text-yellow-500">✓</span>
+                <strong>Tamaño:</strong> {product.size === 'mini' ? 'Mini/Toy' : product.size === 'mediano' ? 'Mediano' : 'Grande'}
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="text-yellow-500">✓</span>
+                <strong>Etapa de vida:</strong> {product.age_range === 'cachorro' ? 'Cachorro' : product.age_range === 'adulto' ? 'Adulto' : 'Senior'}
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="text-yellow-500">✓</span>
+                <strong>Categoría:</strong> {product.category}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Productos Relacionados -->
+      {relatedProducts && relatedProducts.length > 0 && (
+        <div class="border-t pt-12">
+          <h2 class="text-2xl font-bold text-gray-800 mb-6">Productos Relacionados</h2>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {relatedProducts.map((related: any) => (
+              <a href={`/producto/${related.slug || related.id}`} class="group">
+                <div class="bg-white border rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                  <div class="aspect-square bg-gray-100 p-4">
+                    <img 
+                      src={related.image_url || 'https://via.placeholder.com/200?text=Producto'} 
+                      alt={related.name}
+                      class="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                    />
+                  </div>
+                  <div class="p-4">
+                    <h3 class="font-medium text-gray-800 line-clamp-2 mb-2">{related.name}</h3>
+                    <p class="text-lg font-bold text-yellow-600">
+                      {related.on_sale && related.sale_price ? related.sale_price : related.price}€
+                    </p>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+
+  <!-- Toast de confirmación -->
+  <div id="toast" class="hidden fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2">
+    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+    </svg>
+    <span>Producto añadido al carrito</span>
+  </div>
+
+  <script>
+    // Cambiar imagen principal al clicar thumbnail
+    document.querySelectorAll('.thumbnail').forEach(thumb => {
+      thumb.addEventListener('click', () => {
+        const mainImage = document.getElementById('main-image') as HTMLImageElement;
+        const newSrc = (thumb as HTMLElement).dataset.image;
+        if (newSrc && mainImage) {
+          mainImage.src = newSrc;
+        }
+      });
+    });
+
+    // Control de cantidad
+    const quantityInput = document.getElementById('quantity') as HTMLInputElement;
+    const decreaseBtn = document.getElementById('decrease-qty');
+    const increaseBtn = document.getElementById('increase-qty');
+    const maxStock = parseInt(quantityInput?.max || '99');
+
+    decreaseBtn?.addEventListener('click', () => {
+      const current = parseInt(quantityInput.value);
+      if (current > 1) {
+        quantityInput.value = (current - 1).toString();
+      }
+    });
+
+    increaseBtn?.addEventListener('click', () => {
+      const current = parseInt(quantityInput.value);
+      if (current < maxStock) {
+        quantityInput.value = (current + 1).toString();
+      }
+    });
+
+    // Añadir al carrito
+    const addToCartBtn = document.getElementById('add-to-cart-btn');
+    const toast = document.getElementById('toast');
+
+    addToCartBtn?.addEventListener('click', () => {
+      const btn = addToCartBtn as HTMLButtonElement;
+      const productId = btn.dataset.productId;
+      const productName = btn.dataset.productName;
+      const productPrice = parseFloat(btn.dataset.productPrice || '0');
+      const productImage = btn.dataset.productImage;
+      const quantity = parseInt(quantityInput.value);
+
+      // Obtener carrito actual
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+      // Buscar si ya existe el producto
+      const existingIndex = cart.findIndex((item: any) => item.product.id === productId);
+
+      if (existingIndex > -1) {
+        cart[existingIndex].quantity += quantity;
+      } else {
+        cart.push({
+          product: {
+            id: productId,
+            name: productName,
+            price: productPrice,
+            image_url: productImage
+          },
+          quantity: quantity
+        });
+      }
+
+      // Guardar carrito
+      localStorage.setItem('cart', JSON.stringify(cart));
+
+      // Actualizar contador del header
+      const cartCount = document.getElementById('cart-count');
+      if (cartCount) {
+        const total = cart.reduce((sum: number, item: any) => sum + item.quantity, 0);
+        cartCount.textContent = total.toString();
+      }
+
+      // Mostrar toast
+      toast?.classList.remove('hidden');
+      setTimeout(() => {
+        toast?.classList.add('hidden');
+      }, 3000);
+    });
+  </script>
+</Layout>

@@ -1,6 +1,5 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import OfertasToggle from '../../components/OfertasToggle.astro';
 import { supabase } from '../../lib/supabase';
 
 // Proteger ruta - solo admins
@@ -205,11 +204,11 @@ const { count: totalUsers } = await supabase
               <p class="text-sm text-gray-500">Añadir al catálogo</p>
             </div>
           </a>
-          <a href="/admin/pedidos" class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-yellow-50 transition-colors">
-            <span class="text-2xl">📦</span>
+          <a href="/admin/ofertas" class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-orange-50 transition-colors">
+            <span class="text-2xl">🔥</span>
             <div>
-              <p class="font-medium text-gray-800">Pedidos</p>
-              <p class="text-sm text-gray-500">Gestionar envíos</p>
+              <p class="font-medium text-gray-800">Ofertas Flash</p>
+              <p class="text-sm text-gray-500">Gestionar promociones</p>
             </div>
           </a>
           <a href="/admin/facturas" class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors">
@@ -219,19 +218,7 @@ const { count: totalUsers } = await supabase
               <p class="text-sm text-gray-500">Ver facturación</p>
             </div>
           </a>
-          <a href="/admin/devoluciones" class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-red-50 transition-colors">
-            <span class="text-2xl">↩️</span>
-            <div>
-              <p class="font-medium text-gray-800">Devoluciones</p>
-              <p class="text-sm text-gray-500">Gestionar devoluciones</p>
-            </div>
-          </a>
         </div>
-      </div>
-
-      <!-- Toggle de Ofertas Flash -->
-      <div class="mt-8">
-        <OfertasToggle />
       </div>
     </div>
   </div>
