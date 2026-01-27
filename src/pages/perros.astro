@@ -1,0 +1,259 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { supabase } from '../lib/supabase';
+
+// Obtener productos de perros
+const { data: products } = await supabase
+  .from('products')
+  .select('*')
+  .eq('animal_type', 'perro')
+  .order('created_at', { ascending: false });
+
+// Categorías específicas para perros
+const categories = [
+  { id: 'alimentacion', name: 'Alimentación', icon: '🍖', description: 'Piensos, húmedos y snacks' },
+  { id: 'higiene', name: 'Higiene', icon: '🛁', description: 'Champús, cepillos y más' },
+  { id: 'salud', name: 'Salud', icon: '💊', description: 'Antiparasitarios y vitaminas' },
+  { id: 'accesorios', name: 'Accesorios', icon: '🎒', description: 'Collares, correas y camas' },
+  { id: 'juguetes', name: 'Juguetes', icon: '🎾', description: 'Pelotas, mordedores y más' },
+];
+
+const sizes = [
+  { id: 'mini', name: 'Mini/Toy', description: 'Hasta 5kg' },
+  { id: 'mediano', name: 'Mediano', description: '5-25kg' },
+  { id: 'grande', name: 'Grande', description: '+25kg' },
+];
+
+const ages = [
+  { id: 'cachorro', name: 'Cachorro', description: '0-12 meses' },
+  { id: 'adulto', name: 'Adulto', description: '1-7 años' },
+  { id: 'senior', name: 'Senior', description: '+7 años' },
+];
+---
+
+<Layout title="Productos para Perros">
+  <!-- Hero Section -->
+  <section class="relative bg-gradient-to-r from-purple-600 to-purple-800 text-white py-16">
+    <div class="absolute inset-0 bg-black/20"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <nav class="text-sm mb-4 opacity-80">
+        <a href="/" class="hover:underline">Inicio</a>
+        <span class="mx-2">›</span>
+        <span>Perros</span>
+      </nav>
+      <div class="flex items-center gap-4">
+        <span class="text-6xl">🐕</span>
+        <div>
+          <h1 class="text-4xl md:text-5xl font-bold mb-2">Todo para tu Perro</h1>
+          <p class="text-xl opacity-90">Encuentra los mejores productos para el cuidado de tu mejor amigo</p>
+        </div>
+      </div>
+      <div class="mt-8 flex flex-wrap gap-4">
+        <div class="bg-white/20 backdrop-blur rounded-lg px-6 py-3">
+          <span class="font-bold text-2xl">{products?.length || 0}</span>
+          <span class="ml-2">Productos</span>
+        </div>
+        <div class="bg-white/20 backdrop-blur rounded-lg px-6 py-3">
+          <span class="font-bold text-2xl">🚚</span>
+          <span class="ml-2">Envío gratis +49€</span>
+        </div>
+        <div class="bg-white/20 backdrop-blur rounded-lg px-6 py-3">
+          <span class="font-bold text-2xl">24h</span>
+          <span class="ml-2">Entrega rápida</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categorías -->
+  <section class="py-12 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-2xl font-bold mb-6">Categorías</h2>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {categories.map((cat) => (
+          <a 
+            href={`/perros?categoria=${cat.id}`}
+            class="bg-white rounded-xl p-6 text-center hover:shadow-lg transition-all hover:-translate-y-1 border border-gray-100 group"
+          >
+            <span class="text-4xl block mb-3 group-hover:scale-110 transition-transform">{cat.icon}</span>
+            <h3 class="font-semibold text-gray-900">{cat.name}</h3>
+            <p class="text-sm text-gray-500 mt-1">{cat.description}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Filtros y Productos -->
+  <section class="py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Sidebar Filtros -->
+        <aside class="lg:w-64 flex-shrink-0">
+          <div class="bg-white rounded-xl shadow-sm p-6 sticky top-24">
+            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+              Filtros
+            </h3>
+
+            <!-- Por tamaño -->
+            <div class="mb-6">
+              <h4 class="font-medium text-gray-700 mb-3">Tamaño del perro</h4>
+              <div class="space-y-2">
+                {sizes.map((size) => (
+                  <label class="flex items-center gap-2 cursor-pointer group">
+                    <input type="checkbox" name="size" value={size.id} class="rounded text-purple-600 focus:ring-purple-500" />
+                    <span class="group-hover:text-purple-600 transition-colors">{size.name}</span>
+                    <span class="text-xs text-gray-400">({size.description})</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <!-- Por edad -->
+            <div class="mb-6">
+              <h4 class="font-medium text-gray-700 mb-3">Edad</h4>
+              <div class="space-y-2">
+                {ages.map((age) => (
+                  <label class="flex items-center gap-2 cursor-pointer group">
+                    <input type="checkbox" name="age" value={age.id} class="rounded text-purple-600 focus:ring-purple-500" />
+                    <span class="group-hover:text-purple-600 transition-colors">{age.name}</span>
+                    <span class="text-xs text-gray-400">({age.description})</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <!-- Por precio -->
+            <div class="mb-6">
+              <h4 class="font-medium text-gray-700 mb-3">Precio</h4>
+              <div class="space-y-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="price" value="0-20" class="text-purple-600 focus:ring-purple-500" />
+                  <span>Hasta 20€</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="price" value="20-50" class="text-purple-600 focus:ring-purple-500" />
+                  <span>20€ - 50€</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="price" value="50+" class="text-purple-600 focus:ring-purple-500" />
+                  <span>Más de 50€</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Solo ofertas -->
+            <div class="mb-6">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" name="on_sale" class="rounded text-purple-600 focus:ring-purple-500" />
+                <span class="font-medium">Solo ofertas</span>
+                <span class="bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">🔥</span>
+              </label>
+            </div>
+
+            <button class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition-colors">
+              Aplicar filtros
+            </button>
+            <button class="w-full mt-2 text-gray-500 hover:text-gray-700 transition-colors text-sm">
+              Limpiar filtros
+            </button>
+          </div>
+        </aside>
+
+        <!-- Grid de productos -->
+        <div class="flex-1">
+          <div class="flex justify-between items-center mb-6">
+            <p class="text-gray-600">{products?.length || 0} productos encontrados</p>
+            <select class="border border-gray-200 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+              <option>Ordenar por relevancia</option>
+              <option>Precio: menor a mayor</option>
+              <option>Precio: mayor a menor</option>
+              <option>Más vendidos</option>
+              <option>Novedades</option>
+            </select>
+          </div>
+
+          <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {products?.map((product) => (
+              <div class="product-card" data-product={JSON.stringify(product)}>
+                <!-- Renderizado por React -->
+              </div>
+            ))}
+          </div>
+
+          {(!products || products.length === 0) && (
+            <div class="text-center py-16">
+              <span class="text-6xl mb-4 block">🐕</span>
+              <h3 class="text-xl font-semibold text-gray-700 mb-2">No hay productos disponibles</h3>
+              <p class="text-gray-500">Pronto añadiremos más productos para perros</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sección de consejos -->
+  <section class="py-12 bg-purple-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-2xl font-bold mb-6">Consejos para tu perro</h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        <article class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all">
+          <img src="https://via.placeholder.com/400x200/7e22ce/ffffff?text=Alimentacion" alt="Alimentación" class="w-full h-48 object-cover" />
+          <div class="p-6">
+            <span class="text-purple-600 text-sm font-medium">Alimentación</span>
+            <h3 class="font-bold text-lg mt-2">¿Cómo elegir el mejor pienso?</h3>
+            <p class="text-gray-600 mt-2 text-sm">Descubre los factores clave para elegir la alimentación perfecta...</p>
+            <a href="/blog/elegir-pienso-perro" class="text-purple-600 font-medium mt-4 inline-block hover:underline">
+              Leer más →
+            </a>
+          </div>
+        </article>
+        <article class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all">
+          <img src="https://via.placeholder.com/400x200/f97316/ffffff?text=Higiene" alt="Higiene" class="w-full h-48 object-cover" />
+          <div class="p-6">
+            <span class="text-orange-500 text-sm font-medium">Higiene</span>
+            <h3 class="font-bold text-lg mt-2">Baño perfecto en casa</h3>
+            <p class="text-gray-600 mt-2 text-sm">Guía completa para bañar a tu perro como un profesional...</p>
+            <a href="/blog/baniar-perro-casa" class="text-purple-600 font-medium mt-4 inline-block hover:underline">
+              Leer más →
+            </a>
+          </div>
+        </article>
+        <article class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all">
+          <img src="https://via.placeholder.com/400x200/10b981/ffffff?text=Salud" alt="Salud" class="w-full h-48 object-cover" />
+          <div class="p-6">
+            <span class="text-green-600 text-sm font-medium">Salud</span>
+            <h3 class="font-bold text-lg mt-2">Calendario de vacunas</h3>
+            <p class="text-gray-600 mt-2 text-sm">Todo lo que necesitas saber sobre las vacunas de tu perro...</p>
+            <a href="/blog/vacunas-perro" class="text-purple-600 font-medium mt-4 inline-block hover:underline">
+              Leer más →
+            </a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  import { createElement } from 'react';
+  import { createRoot } from 'react-dom/client';
+  import ProductCard from '../components/ProductCard';
+  
+  // Renderizar las tarjetas de producto con React
+  document.addEventListener('DOMContentLoaded', () => {
+    const productCards = document.querySelectorAll('.product-card');
+    productCards.forEach((container) => {
+      const productData = container.getAttribute('data-product');
+      if (productData) {
+        const product = JSON.parse(productData);
+        const root = createRoot(container);
+        root.render(createElement(ProductCard, { product, showQuickActions: true }));
+      }
+    });
+  });
+</script>

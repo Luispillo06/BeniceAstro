@@ -3,6 +3,9 @@ import '../styles/global.css';
 import NewsletterPopup from '../components/NewsletterPopup.astro';
 import CartButton from '../components/CartButton.tsx';
 import CartSlideOver from '../components/CartSlideOver.tsx';
+import ToastContainer from '../components/Toast.tsx';
+import QuickViewModal from '../components/QuickViewModal.tsx';
+import CookieBanner from '../components/CookieBanner.tsx';
 
 interface Props {
   title: string;
@@ -19,63 +22,210 @@ const { title, description = 'Tienda online de productos para mascotas', hideNew
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content={description}>
-  <title>{title} - Venice</title>
+  <meta name="theme-color" content="#7e22ce">
+  <meta property="og:title" content={`${title} - Venice Pet Shop`}>
+  <meta property="og:description" content={description}>
+  <meta property="og:type" content="website">
+  <title>{title} - Venice Pet Shop</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 </head>
-<body>
-  <nav class="bg-white shadow-md">
+<body class="antialiased">
+  <!-- Banner superior -->
+  <div class="bg-purple-700 text-white py-2 text-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-center md:justify-between items-center gap-4">
+        <div class="hidden md:flex items-center gap-6">
+          <span class="flex items-center gap-1">📞 900 123 456</span>
+          <span class="flex items-center gap-1">✉️ info@venice.com</span>
+        </div>
+        <div class="flex items-center gap-1 animate-pulse">
+          <span>🚚</span>
+          <span>Envío GRATIS en pedidos +49€</span>
+        </div>
+        <div class="hidden md:flex items-center gap-4">
+          <a href="/blog" class="hover:underline">Blog</a>
+          <a href="/faq" class="hover:underline">Ayuda</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navegación principal -->
+  <nav class="bg-white shadow-md sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
+        <!-- Logo y menú principal -->
         <div class="flex items-center space-x-8">
-          <a href="/" class="text-2xl font-bold text-purple-700">
-            Venice
+          <a href="/" class="flex items-center gap-2">
+            <span class="text-3xl">🐾</span>
+            <span class="text-2xl font-bold bg-gradient-to-r from-purple-700 to-orange-500 bg-clip-text text-transparent">
+              Venice
+            </span>
           </a>
-          <a href="/productos" class="text-gray-700 hover:text-purple-600">Productos</a>
-          <a href="/recomendador" class="text-gray-700 hover:text-purple-600">
-            Recomendador
-          </a>
-          <a href="/sobre-nosotros" class="text-gray-700 hover:text-purple-600">Sobre Nosotros</a>
+          
+          <!-- Mega menú desktop -->
+          <div class="hidden lg:flex items-center space-x-1">
+            <!-- Perros -->
+            <div class="relative group">
+              <a href="/perros" class="flex items-center gap-1 px-3 py-2 text-gray-700 hover:text-purple-600 font-medium">
+                🐕 Perros
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </a>
+              <div class="absolute left-0 mt-0 w-64 bg-white rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform group-hover:translate-y-0 translate-y-2">
+                <div class="p-4">
+                  <h3 class="font-bold text-purple-700 mb-3">Para tu perro</h3>
+                  <div class="space-y-2">
+                    <a href="/perros?categoria=alimentacion" class="block text-gray-600 hover:text-purple-600 hover:pl-2 transition-all">🍖 Alimentación</a>
+                    <a href="/perros?categoria=higiene" class="block text-gray-600 hover:text-purple-600 hover:pl-2 transition-all">🛁 Higiene</a>
+                    <a href="/perros?categoria=salud" class="block text-gray-600 hover:text-purple-600 hover:pl-2 transition-all">💊 Salud</a>
+                    <a href="/perros?categoria=accesorios" class="block text-gray-600 hover:text-purple-600 hover:pl-2 transition-all">🎒 Accesorios</a>
+                    <a href="/perros?categoria=juguetes" class="block text-gray-600 hover:text-purple-600 hover:pl-2 transition-all">🎾 Juguetes</a>
+                  </div>
+                  <a href="/perros" class="block mt-4 text-purple-600 font-medium hover:underline">Ver todo →</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gatos -->
+            <div class="relative group">
+              <a href="/gatos" class="flex items-center gap-1 px-3 py-2 text-gray-700 hover:text-purple-600 font-medium">
+                🐈 Gatos
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </a>
+              <div class="absolute left-0 mt-0 w-64 bg-white rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform group-hover:translate-y-0 translate-y-2">
+                <div class="p-4">
+                  <h3 class="font-bold text-orange-500 mb-3">Para tu gato</h3>
+                  <div class="space-y-2">
+                    <a href="/gatos?categoria=alimentacion" class="block text-gray-600 hover:text-orange-500 hover:pl-2 transition-all">🍖 Alimentación</a>
+                    <a href="/gatos?categoria=higiene" class="block text-gray-600 hover:text-orange-500 hover:pl-2 transition-all">🧹 Arena y Limpieza</a>
+                    <a href="/gatos?categoria=salud" class="block text-gray-600 hover:text-orange-500 hover:pl-2 transition-all">💊 Salud</a>
+                    <a href="/gatos?categoria=accesorios" class="block text-gray-600 hover:text-orange-500 hover:pl-2 transition-all">🛋️ Accesorios</a>
+                    <a href="/gatos?categoria=juguetes" class="block text-gray-600 hover:text-orange-500 hover:pl-2 transition-all">🐭 Juguetes</a>
+                  </div>
+                  <a href="/gatos" class="block mt-4 text-orange-500 font-medium hover:underline">Ver todo →</a>
+                </div>
+              </div>
+            </div>
+
+            <a href="/ofertas" class="px-3 py-2 text-red-600 hover:text-red-700 font-bold flex items-center gap-1">
+              🔥 Ofertas
+            </a>
+            
+            <a href="/productos" class="px-3 py-2 text-gray-700 hover:text-purple-600 font-medium">
+              Todos
+            </a>
+
+            <a href="/recomendador" class="px-3 py-2 text-gray-700 hover:text-purple-600 font-medium flex items-center gap-1">
+              ✨ Recomendador
+            </a>
+          </div>
         </div>
         
-        <div class="flex items-center space-x-4">
+        <!-- Acciones derecha -->
+        <div class="flex items-center space-x-3">
           <!-- Buscador -->
-          <div class="relative" id="search-container">
-            <input
-              type="text"
-              id="search-input"
-              placeholder="Buscar productos..."
-              class="input w-64"
-            />
-            <div id="search-results" class="absolute z-50 w-full mt-2 bg-white rounded-lg shadow-lg hidden max-h-96 overflow-y-auto"></div>
+          <div class="relative hidden sm:block" id="search-container">
+            <div class="relative">
+              <input
+                type="text"
+                id="search-input"
+                placeholder="¿Qué buscas?"
+                class="w-48 lg:w-64 pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all"
+              />
+              <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <div id="search-results" class="absolute z-50 w-80 mt-2 bg-white rounded-xl shadow-2xl hidden max-h-96 overflow-y-auto border border-gray-100"></div>
           </div>
+
+          <!-- Favoritos -->
+          <a href="/favoritos" class="relative p-2 text-gray-600 hover:text-purple-600 transition-colors" title="Favoritos">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+            <span id="wishlist-count" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center hidden">0</span>
+          </a>
 
           <!-- Carrito React -->
           <CartButton client:load />
           
+          <!-- Auth -->
           <div id="auth-buttons">
-            <a href="/login" class="btn btn-primary">Iniciar Sesión</a>
+            <a href="/login" class="bg-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-purple-700 transition-colors">
+              Entrar
+            </a>
           </div>
           
           <div id="user-menu" class="hidden relative">
-            <button id="user-menu-button" class="flex items-center space-x-2 text-gray-700 hover:text-purple-600">
-              <span id="user-email"></span>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            <button id="user-menu-button" class="flex items-center gap-2 p-2 rounded-full hover:bg-gray-100 transition-colors">
+              <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1">
-              <a href="/perfil" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Mi Perfil</a>
-              <a href="/mis-pedidos" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Mis Pedidos</a>
-              <a href="/admin" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" id="admin-link">Administración</a>
-              <button id="logout-button" class="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100">
-                Cerrar Sesión
-              </button>
+            <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl py-2 border border-gray-100">
+              <div class="px-4 py-2 border-b border-gray-100">
+                <p class="text-sm text-gray-500">Hola,</p>
+                <p id="user-email" class="font-medium text-gray-900 truncate"></p>
+              </div>
+              <a href="/perfil" class="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50">
+                <span>👤</span> Mi Perfil
+              </a>
+              <a href="/mis-pedidos" class="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50">
+                <span>📦</span> Mis Pedidos
+              </a>
+              <a href="/favoritos" class="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50">
+                <span>❤️</span> Favoritos
+              </a>
+              <a href="/admin" class="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hidden" id="admin-link">
+                <span>⚙️</span> Administración
+              </a>
+              <div class="border-t border-gray-100 mt-2 pt-2">
+                <button id="logout-button" class="flex items-center gap-3 px-4 py-2 text-red-600 hover:bg-red-50 w-full">
+                  <span>🚪</span> Cerrar Sesión
+                </button>
+              </div>
             </div>
           </div>
+
+          <!-- Menú móvil -->
+          <button id="mobile-menu-btn" class="lg:hidden p-2">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>
+
+    <!-- Menú móvil -->
+    <div id="mobile-menu" class="hidden lg:hidden bg-white border-t">
+      <div class="px-4 py-4 space-y-3">
+        <a href="/perros" class="block py-2 text-gray-700 font-medium">🐕 Perros</a>
+        <a href="/gatos" class="block py-2 text-gray-700 font-medium">🐈 Gatos</a>
+        <a href="/ofertas" class="block py-2 text-red-600 font-bold">🔥 Ofertas</a>
+        <a href="/productos" class="block py-2 text-gray-700 font-medium">Todos los productos</a>
+        <a href="/recomendador" class="block py-2 text-gray-700 font-medium">✨ Recomendador</a>
+        <a href="/blog" class="block py-2 text-gray-700 font-medium">📚 Blog</a>
+        <a href="/contacto" class="block py-2 text-gray-700 font-medium">📞 Contacto</a>
+      </div>
+    </div>
   </nav>
+
+  <!-- Toast Notifications -->
+  <ToastContainer client:load />
+  
+  <!-- Quick View Modal -->
+  <QuickViewModal client:load />
 
   <main class="min-h-screen">
     <slot />
@@ -87,29 +237,163 @@ const { title, description = 'Tienda online de productos para mascotas', hideNew
   <!-- Newsletter Popup -->
   {!hideNewsletterPopup && <NewsletterPopup />}
 
-  <footer class="bg-gray-800 text-white mt-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div>
-          <h3 class="text-lg font-bold mb-4">Venice</h3>
-          <p class="text-gray-400">Tu tienda de confianza para productos de mascotas</p>
-        </div>
-        <div>
-          <h3 class="text-lg font-bold mb-4">Enlaces</h3>
-          <ul class="space-y-2 text-gray-400">
-            <li><a href="/productos" class="hover:text-white">Productos</a></li>
-            <li><a href="/sobre-nosotros" class="hover:text-white">Sobre Nosotros</a></li>
-            <li><a href="/contacto" class="hover:text-white">Contacto</a></li>
-          </ul>
-        </div>
-        <div>
-          <h3 class="text-lg font-bold mb-4">Atención al Cliente</h3>
-          <p class="text-gray-400">Email: info@beniceastro.com</p>
-          <p class="text-gray-400">Tel: +34 900 123 456</p>
+  <!-- Cookie Banner GDPR -->
+  <CookieBanner client:load />
+
+  <footer class="bg-gray-900 text-white mt-12">
+    <!-- Beneficios -->
+    <div class="border-b border-gray-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div class="flex items-center gap-3">
+            <span class="text-3xl">🚚</span>
+            <div>
+              <h4 class="font-bold">Envío Gratis</h4>
+              <p class="text-sm text-gray-400">En pedidos +49€</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-3xl">↩️</span>
+            <div>
+              <h4 class="font-bold">30 días</h4>
+              <p class="text-sm text-gray-400">Para devoluciones</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-3xl">🔒</span>
+            <div>
+              <h4 class="font-bold">Pago Seguro</h4>
+              <p class="text-sm text-gray-400">SSL + Stripe</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-3xl">📞</span>
+            <div>
+              <h4 class="font-bold">Atención 24/7</h4>
+              <p class="text-sm text-gray-400">Siempre disponibles</p>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-        <p>&copy; {new Date().getFullYear()} BeniceAstro. Todos los derechos reservados.</p>
+    </div>
+
+    <!-- Links principales -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-8">
+        <div class="col-span-2 md:col-span-1">
+          <a href="/" class="flex items-center gap-2 mb-4">
+            <span class="text-3xl">🐾</span>
+            <span class="text-2xl font-bold">Venice</span>
+          </a>
+          <p class="text-gray-400 text-sm mb-4">Tu tienda de confianza para el cuidado de tus mascotas</p>
+          <div class="flex gap-3">
+            <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors">
+              <span>📘</span>
+            </a>
+            <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors">
+              <span>📸</span>
+            </a>
+            <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors">
+              <span>🐦</span>
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="font-bold mb-4">Tienda</h3>
+          <ul class="space-y-2 text-gray-400 text-sm">
+            <li><a href="/perros" class="hover:text-white transition-colors">Perros</a></li>
+            <li><a href="/gatos" class="hover:text-white transition-colors">Gatos</a></li>
+            <li><a href="/ofertas" class="hover:text-white transition-colors">Ofertas</a></li>
+            <li><a href="/productos" class="hover:text-white transition-colors">Todos los productos</a></li>
+            <li><a href="/recomendador" class="hover:text-white transition-colors">Recomendador</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="font-bold mb-4">Información</h3>
+          <ul class="space-y-2 text-gray-400 text-sm">
+            <li><a href="/sobre-nosotros" class="hover:text-white transition-colors">Sobre nosotros</a></li>
+            <li><a href="/blog" class="hover:text-white transition-colors">Blog</a></li>
+            <li><a href="/contacto" class="hover:text-white transition-colors">Contacto</a></li>
+            <li><a href="/faq" class="hover:text-white transition-colors">Preguntas frecuentes</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="font-bold mb-4">Ayuda</h3>
+          <ul class="space-y-2 text-gray-400 text-sm">
+            <li><a href="/envios" class="hover:text-white transition-colors">Envíos y devoluciones</a></li>
+            <li><a href="/mis-pedidos" class="hover:text-white transition-colors">Seguir mi pedido</a></li>
+            <li><a href="/terminos" class="hover:text-white transition-colors">Términos y condiciones</a></li>
+            <li><a href="/privacidad" class="hover:text-white transition-colors">Política de privacidad</a></li>
+            <li><a href="/cookies" class="hover:text-white transition-colors">Política de cookies</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="font-bold mb-4">Contacto</h3>
+          <ul class="space-y-2 text-gray-400 text-sm">
+            <li class="flex items-center gap-2">
+              <span>📞</span>
+              <a href="tel:900123456" class="hover:text-white transition-colors">900 123 456</a>
+            </li>
+            <li class="flex items-center gap-2">
+              <span>✉️</span>
+              <a href="mailto:info@venice.com" class="hover:text-white transition-colors">info@venice.com</a>
+            </li>
+            <li class="flex items-center gap-2">
+              <span>💬</span>
+              <a href="https://wa.me/34600000000" class="hover:text-white transition-colors">WhatsApp</a>
+            </li>
+            <li class="flex items-start gap-2 mt-2">
+              <span>📍</span>
+              <span>Calle Gran Vía, 123<br>28013 Madrid</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Newsletter Footer -->
+    <div class="border-t border-gray-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div>
+            <h3 class="font-bold text-lg">Suscríbete a nuestra newsletter</h3>
+            <p class="text-gray-400 text-sm">Recibe ofertas exclusivas y novedades</p>
+          </div>
+          <form class="flex gap-2 w-full md:w-auto">
+            <input 
+              type="email" 
+              placeholder="tu@email.com" 
+              class="flex-1 md:w-64 px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+            />
+            <button type="submit" class="bg-purple-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors whitespace-nowrap">
+              Suscribirse
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Copyright y métodos de pago -->
+    <div class="border-t border-gray-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <p class="text-gray-400 text-sm text-center md:text-left">
+            © {new Date().getFullYear()} Venice Pet Shop. Todos los derechos reservados.
+          </p>
+          <div class="flex items-center gap-4">
+            <span class="text-gray-400 text-sm">Métodos de pago:</span>
+            <div class="flex gap-2">
+              <span class="bg-gray-800 px-2 py-1 rounded text-sm">💳 Visa</span>
+              <span class="bg-gray-800 px-2 py-1 rounded text-sm">💳 MC</span>
+              <span class="bg-gray-800 px-2 py-1 rounded text-sm">🅿️ PayPal</span>
+              <span class="bg-gray-800 px-2 py-1 rounded text-sm">🍎 Apple</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </footer>
@@ -151,6 +435,14 @@ const { title, description = 'Tienda online de productos para mascotas', hideNew
       userDropdown?.classList.toggle('hidden');
     });
 
+    // Menú móvil
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    
+    mobileMenuBtn?.addEventListener('click', () => {
+      mobileMenu?.classList.toggle('hidden');
+    });
+
     // Cerrar menú al hacer click fuera
     document.addEventListener('click', (e) => {
       if (!userMenuButton?.contains(e.target as Node) && !userDropdown?.contains(e.target as Node)) {
@@ -172,6 +464,20 @@ const { title, description = 'Tienda online de productos para mascotas', hideNew
       const cartCount = document.getElementById('cart-count');
       if (cartCount) {
         cartCount.textContent = count.toString();
+      }
+    }
+
+    // Actualizar contador de wishlist
+    function updateWishlistCount() {
+      const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      const wishlistCount = document.getElementById('wishlist-count');
+      if (wishlistCount) {
+        if (wishlist.length > 0) {
+          wishlistCount.textContent = wishlist.length.toString();
+          wishlistCount.classList.remove('hidden');
+        } else {
+          wishlistCount.classList.add('hidden');
+        }
       }
     }
 
@@ -197,22 +503,38 @@ const { title, description = 'Tienda online de productos para mascotas', hideNew
           
           if (products.length === 0) {
             searchResults!.innerHTML = `
-              <div class="p-4 text-gray-500">
-                No se encontraron productos
+              <div class="p-6 text-center">
+                <span class="text-4xl mb-2 block">🔍</span>
+                <p class="text-gray-500">No se encontraron productos</p>
+                <a href="/productos" class="text-purple-600 hover:underline text-sm mt-2 inline-block">Ver todos los productos</a>
               </div>
             `;
           } else {
-            searchResults!.innerHTML = products.map((p: any) => `
-              <a href="/producto/${p.id}" class="block p-3 hover:bg-gray-100 border-b last:border-b-0">
-                <div class="flex items-center space-x-3">
-                  <img src="${p.image_url}" alt="${p.name}" class="w-12 h-12 object-cover rounded">
-                  <div>
-                    <div class="font-medium">${p.name}</div>
-                    <div class="text-sm text-gray-600">${p.price}€</div>
-                  </div>
-                </div>
-              </a>
-            `).join('');
+            searchResults!.innerHTML = `
+              <div class="p-2">
+                ${products.slice(0, 5).map((p: any) => `
+                  <a href="/producto/${p.slug || p.id}" class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                    <img src="${p.image_url}" alt="${p.name}" class="w-14 h-14 object-cover rounded-lg">
+                    <div class="flex-1 min-w-0">
+                      <div class="font-medium text-gray-900 truncate">${p.name}</div>
+                      <div class="flex items-center gap-2">
+                        ${p.on_sale ? `
+                          <span class="text-purple-600 font-bold">${p.sale_price}€</span>
+                          <span class="text-gray-400 line-through text-sm">${p.price}€</span>
+                        ` : `
+                          <span class="text-purple-600 font-bold">${p.price}€</span>
+                        `}
+                      </div>
+                    </div>
+                  </a>
+                `).join('')}
+                ${products.length > 5 ? `
+                  <a href="/productos?q=${encodeURIComponent(query)}" class="block p-3 text-center text-purple-600 hover:bg-purple-50 rounded-lg font-medium">
+                    Ver todos (${products.length} resultados) →
+                  </a>
+                ` : ''}
+              </div>
+            `;
           }
           
           searchResults?.classList.remove('hidden');
@@ -233,9 +555,16 @@ const { title, description = 'Tienda online de productos para mascotas', hideNew
     // Inicializar
     checkAuth();
     updateCartCount();
+    updateWishlistCount();
 
-    // Actualizar carrito cuando cambie en otra pestaña
-    window.addEventListener('storage', updateCartCount);
+    // Actualizar carrito cuando cambie
+    window.addEventListener('storage', () => {
+      updateCartCount();
+      updateWishlistCount();
+    });
+
+    // Escuchar evento personalizado de wishlist
+    window.addEventListener('wishlistUpdated', updateWishlistCount);
   </script>
 </body>
 </html>

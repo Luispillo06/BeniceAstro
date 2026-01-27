@@ -1,0 +1,263 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { supabase } from '../lib/supabase';
+
+// Obtener productos en oferta
+const { data: products } = await supabase
+  .from('products')
+  .select('*')
+  .eq('on_sale', true)
+  .order('created_at', { ascending: false });
+
+// Fecha límite para el countdown (ejemplo: 7 días desde ahora)
+const endDate = new Date();
+endDate.setDate(endDate.getDate() + 7);
+---
+
+<Layout title="Ofertas - Hasta 50% de descuento">
+  <!-- Hero con countdown -->
+  <section class="relative bg-gradient-to-r from-red-600 to-orange-500 text-white py-16 overflow-hidden">
+    <div class="absolute inset-0">
+      <div class="absolute inset-0 bg-black/30"></div>
+      <!-- Confetti animado -->
+      <div class="confetti-container"></div>
+    </div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div class="text-center">
+        <span class="inline-block bg-yellow-400 text-yellow-900 px-4 py-1 rounded-full text-sm font-bold mb-4 animate-bounce">
+          🔥 OFERTAS LIMITADAS 🔥
+        </span>
+        <h1 class="text-4xl md:text-6xl font-bold mb-4">Super Ofertas</h1>
+        <p class="text-xl md:text-2xl opacity-90 mb-8">Hasta <span class="font-bold text-yellow-300">50% de descuento</span> en productos seleccionados</p>
+        
+        <!-- Countdown -->
+        <div class="flex justify-center gap-4 mb-8">
+          <div class="bg-white/20 backdrop-blur rounded-xl p-4 min-w-[80px]">
+            <span id="days" class="text-4xl font-bold block">00</span>
+            <span class="text-sm opacity-80">Días</span>
+          </div>
+          <div class="bg-white/20 backdrop-blur rounded-xl p-4 min-w-[80px]">
+            <span id="hours" class="text-4xl font-bold block">00</span>
+            <span class="text-sm opacity-80">Horas</span>
+          </div>
+          <div class="bg-white/20 backdrop-blur rounded-xl p-4 min-w-[80px]">
+            <span id="minutes" class="text-4xl font-bold block">00</span>
+            <span class="text-sm opacity-80">Min</span>
+          </div>
+          <div class="bg-white/20 backdrop-blur rounded-xl p-4 min-w-[80px]">
+            <span id="seconds" class="text-4xl font-bold block">00</span>
+            <span class="text-sm opacity-80">Seg</span>
+          </div>
+        </div>
+
+        <p class="text-lg">¡Date prisa! Las ofertas terminan pronto</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Beneficios -->
+  <section class="bg-gray-900 text-white py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-wrap justify-center gap-8 text-center">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🚚</span>
+          <span>Envío gratis +49€</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">↩️</span>
+          <span>Devolución 30 días</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🔒</span>
+          <span>Pago 100% seguro</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📞</span>
+          <span>Atención 24/7</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categorías de ofertas -->
+  <section class="py-12 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-wrap gap-4 justify-center">
+        <button class="px-6 py-3 bg-purple-600 text-white rounded-full font-medium hover:bg-purple-700 transition-colors">
+          Todas las ofertas
+        </button>
+        <button class="px-6 py-3 bg-gray-100 text-gray-700 rounded-full font-medium hover:bg-gray-200 transition-colors">
+          🐕 Perros
+        </button>
+        <button class="px-6 py-3 bg-gray-100 text-gray-700 rounded-full font-medium hover:bg-gray-200 transition-colors">
+          🐈 Gatos
+        </button>
+        <button class="px-6 py-3 bg-gray-100 text-gray-700 rounded-full font-medium hover:bg-gray-200 transition-colors">
+          🍖 Alimentación
+        </button>
+        <button class="px-6 py-3 bg-gray-100 text-gray-700 rounded-full font-medium hover:bg-gray-200 transition-colors">
+          🎾 Juguetes
+        </button>
+        <button class="px-6 py-3 bg-gray-100 text-gray-700 rounded-full font-medium hover:bg-gray-200 transition-colors">
+          💊 Salud
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Flash deals destacados -->
+  <section class="py-12 bg-gradient-to-b from-yellow-50 to-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center gap-3">
+          <span class="text-3xl">⚡</span>
+          <h2 class="text-2xl font-bold">Ofertas Flash</h2>
+          <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">EN VIVO</span>
+        </div>
+        <a href="#all-offers" class="text-purple-600 hover:underline font-medium">Ver todas →</a>
+      </div>
+
+      {products && products.length > 0 ? (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {products.slice(0, 4).map((product) => (
+            <div class="product-card" data-product={JSON.stringify(product)}></div>
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-8 bg-white rounded-xl">
+          <p class="text-gray-500">No hay ofertas flash activas en este momento</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Banner cupón -->
+  <section class="py-8 bg-purple-600">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-white">
+        <div>
+          <h3 class="text-2xl font-bold">🎁 ¿Primera compra?</h3>
+          <p class="opacity-90">Usa el código <span class="font-mono bg-white/20 px-2 py-1 rounded">BIENVENIDO10</span> y obtén un 10% extra</p>
+        </div>
+        <button class="bg-white text-purple-600 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors">
+          Copiar código
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Todas las ofertas -->
+  <section id="all-offers" class="py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-2xl font-bold mb-8">Todas las ofertas ({products?.length || 0})</h2>
+      
+      {products && products.length > 0 ? (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {products.map((product) => (
+            <div class="product-card" data-product={JSON.stringify(product)}></div>
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-16 bg-gray-50 rounded-xl">
+          <span class="text-6xl mb-4 block">🏷️</span>
+          <h3 class="text-xl font-semibold text-gray-700 mb-2">No hay ofertas activas</h3>
+          <p class="text-gray-500 mb-6">Vuelve pronto para descubrir nuevas promociones</p>
+          <a href="/productos" class="inline-block bg-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700 transition-colors">
+            Ver todos los productos
+          </a>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="py-12 bg-gradient-to-r from-purple-600 to-pink-500">
+    <div class="max-w-3xl mx-auto px-4 text-center text-white">
+      <h2 class="text-3xl font-bold mb-4">¿No quieres perderte ninguna oferta?</h2>
+      <p class="text-xl opacity-90 mb-8">Suscríbete y recibe las mejores ofertas directamente en tu email</p>
+      <form class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+        <input 
+          type="email" 
+          placeholder="tu@email.com" 
+          class="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:ring-4 focus:ring-white/30"
+        />
+        <button type="submit" class="bg-yellow-400 text-yellow-900 px-6 py-3 rounded-lg font-bold hover:bg-yellow-300 transition-colors">
+          ¡Suscribirme!
+        </button>
+      </form>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  @keyframes confetti-fall {
+    0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+  
+  .confetti-container::before {
+    content: '🎉';
+    position: absolute;
+    font-size: 2rem;
+    animation: confetti-fall 5s linear infinite;
+    left: 10%;
+  }
+  
+  .confetti-container::after {
+    content: '🎊';
+    position: absolute;
+    font-size: 2rem;
+    animation: confetti-fall 4s linear infinite;
+    animation-delay: 1s;
+    right: 10%;
+  }
+</style>
+
+<script define:vars={{ endDate: endDate.toISOString() }}>
+  // Countdown timer
+  function updateCountdown() {
+    const end = new Date(endDate);
+    const now = new Date();
+    const diff = end - now;
+    
+    if (diff <= 0) {
+      document.getElementById('days').textContent = '00';
+      document.getElementById('hours').textContent = '00';
+      document.getElementById('minutes').textContent = '00';
+      document.getElementById('seconds').textContent = '00';
+      return;
+    }
+    
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    document.getElementById('days').textContent = days.toString().padStart(2, '0');
+    document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+    document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+    document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+  }
+  
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+</script>
+
+<script>
+  import { createElement } from 'react';
+  import { createRoot } from 'react-dom/client';
+  import ProductCard from '../components/ProductCard';
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    const productCards = document.querySelectorAll('.product-card');
+    productCards.forEach((container) => {
+      const productData = container.getAttribute('data-product');
+      if (productData) {
+        const product = JSON.parse(productData);
+        const root = createRoot(container);
+        root.render(createElement(ProductCard, { product, showQuickActions: true }));
+      }
+    });
+  });
+</script>

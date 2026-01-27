@@ -1,9 +1,10 @@
 import type { APIRoute } from 'astro';
 import { supabase } from '../../lib/supabase';
+import { sendOrderConfirmation } from '../../lib/email';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const { user_id, items, total, promo_code, discount_amount } = await request.json();
+    const { user_id, items, total, promo_code, discount_amount, shipping_address, user_email } = await request.json();
 
     if (!user_id || !items || items.length === 0) {
       return new Response(JSON.stringify({ error: 'Datos inválidos' }), {
@@ -23,9 +24,37 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (error) throw error;
 
+    const orderId = data;
+
+    // Enviar email de confirmación
+    if (user_email) {
+      try {
+        await sendOrderConfirmation({
+          orderNumber: orderId.toString(),
+          customerEmail: user_email,
+          customerName: shipping_address?.name || 'Cliente',
+          items: items.map((item: any) => ({
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+            imageUrl: item.image_url
+          })),
+          subtotal: total + (discount_amount || 0),
+          shipping: total >= 49 ? 0 : 4.99,
+          discount: discount_amount || 0,
+          total: total,
+          shippingAddress: shipping_address || {},
+          estimatedDelivery: getEstimatedDelivery()
+        });
+      } catch (emailError) {
+        console.error('Error al enviar email de confirmación:', emailError);
+        // No fallamos el pedido si el email falla
+      }
+    }
+
     return new Response(JSON.stringify({ 
       success: true, 
-      order_id: data 
+      order_id: orderId 
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
@@ -38,3 +67,23 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 };
+
+// Calcular fecha estimada de entrega (2-3 días laborables)
+function getEstimatedDelivery(): string {
+  const date = new Date();
+  let daysToAdd = 2;
+  
+  while (daysToAdd > 0) {
+    date.setDate(date.getDate() + 1);
+    // Saltar fines de semana
+    if (date.getDay() !== 0 && date.getDay() !== 6) {
+      daysToAdd--;
+    }
+  }
+  
+  return date.toLocaleDateString('es-ES', { 
+    weekday: 'long', 
+    day: 'numeric', 
+    month: 'long' 
+  });
+}

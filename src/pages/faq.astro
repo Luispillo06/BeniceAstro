@@ -1,0 +1,246 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const faqs = [
+  {
+    category: 'Pedidos y Envíos',
+    icon: '📦',
+    questions: [
+      {
+        q: '¿Cuánto tarda el envío?',
+        a: 'Los envíos se realizan en 24-48 horas laborables para pedidos realizados antes de las 14:00. Para Canarias, Baleares y otros destinos, el plazo puede ser de 3-5 días laborables.'
+      },
+      {
+        q: '¿El envío es gratis?',
+        a: 'Sí, el envío es completamente gratis para pedidos superiores a 49€ en península. Para pedidos inferiores, el coste es de 4,99€.'
+      },
+      {
+        q: '¿Cómo puedo hacer seguimiento de mi pedido?',
+        a: 'Una vez enviado tu pedido, recibirás un email con el número de seguimiento y un enlace para rastrear tu paquete en tiempo real. También puedes verlo en la sección "Mis Pedidos".'
+      },
+      {
+        q: '¿Puedo cambiar la dirección de envío?',
+        a: 'Sí, siempre que el pedido no haya sido enviado todavía. Contacta con nosotros lo antes posible para modificar la dirección.'
+      },
+    ]
+  },
+  {
+    category: 'Devoluciones y Reembolsos',
+    icon: '↩️',
+    questions: [
+      {
+        q: '¿Cuál es la política de devolución?',
+        a: 'Tienes 30 días desde la recepción del pedido para devolver cualquier producto sin abrir y en su embalaje original. Las devoluciones son gratuitas.'
+      },
+      {
+        q: '¿Cómo solicito una devolución?',
+        a: 'Ve a "Mis Pedidos", selecciona el pedido y haz clic en "Solicitar devolución". Recibirás una etiqueta de envío gratuita por email.'
+      },
+      {
+        q: '¿Cuánto tardan en reembolsarme?',
+        a: 'Una vez recibido el producto en nuestro almacén, procesamos el reembolso en 3-5 días laborables. El dinero aparecerá en tu cuenta según tu banco (normalmente 2-5 días adicionales).'
+      },
+      {
+        q: '¿Puedo devolver comida abierta?',
+        a: 'Por motivos de higiene, no aceptamos devoluciones de productos de alimentación abiertos. Sin embargo, si el producto está defectuoso, contáctanos y lo solucionamos.'
+      },
+    ]
+  },
+  {
+    category: 'Pagos',
+    icon: '💳',
+    questions: [
+      {
+        q: '¿Qué métodos de pago aceptáis?',
+        a: 'Aceptamos tarjetas de crédito/débito (Visa, Mastercard, American Express), PayPal, Apple Pay, Google Pay y transferencia bancaria.'
+      },
+      {
+        q: '¿Es seguro pagar en vuestra web?',
+        a: 'Absolutamente. Utilizamos encriptación SSL de 256 bits y cumplimos con la normativa PCI DSS. Además, todos los pagos son procesados por Stripe, líder mundial en seguridad de pagos.'
+      },
+      {
+        q: '¿Ofrecéis pago a plazos?',
+        a: 'Sí, para compras superiores a 50€ puedes pagar en 3 cuotas sin intereses con PayPal o Klarna.'
+      },
+      {
+        q: '¿Puedo usar varios códigos de descuento?',
+        a: 'Solo se puede aplicar un código de descuento por pedido. Sin embargo, los códigos son acumulables con las ofertas de productos.'
+      },
+    ]
+  },
+  {
+    category: 'Productos',
+    icon: '🛍️',
+    questions: [
+      {
+        q: '¿Los productos son originales?',
+        a: 'Sí, todos nuestros productos son 100% originales. Trabajamos directamente con fabricantes y distribuidores oficiales.'
+      },
+      {
+        q: '¿Vendéis productos para otras mascotas además de perros y gatos?',
+        a: 'Sí, tenemos productos para pájaros, roedores (hamsters, conejos, cobayas), peces y reptiles. Consulta nuestra sección "Otras Mascotas".'
+      },
+      {
+        q: '¿Cómo sé qué pienso es mejor para mi mascota?',
+        a: 'Puedes usar nuestro Recomendador de Productos, donde indicando el tipo de animal, edad, tamaño y necesidades especiales, te sugerimos las mejores opciones.'
+      },
+      {
+        q: '¿Tenéis productos veterinarios?',
+        a: 'Sí, disponemos de antiparasitarios, suplementos y productos de higiene. Para medicamentos con receta, necesitarás prescripción veterinaria.'
+      },
+    ]
+  },
+  {
+    category: 'Cuenta y Privacidad',
+    icon: '🔐',
+    questions: [
+      {
+        q: '¿Cómo creo una cuenta?',
+        a: 'Haz clic en "Registrarse" en la parte superior de la página. Solo necesitas un email y una contraseña. También puedes registrarte al realizar tu primer pedido.'
+      },
+      {
+        q: '¿Qué ventajas tiene tener cuenta?',
+        a: 'Con tu cuenta puedes: guardar tus direcciones, ver el historial de pedidos, crear listas de deseos, acumular puntos y recibir ofertas exclusivas.'
+      },
+      {
+        q: '¿Cómo recupero mi contraseña?',
+        a: 'Haz clic en "Iniciar Sesión" y luego en "¿Olvidaste tu contraseña?". Recibirás un email con un enlace para crear una nueva contraseña.'
+      },
+      {
+        q: '¿Qué hacéis con mis datos personales?',
+        a: 'Tus datos están protegidos según el RGPD. Solo los usamos para gestionar tus pedidos y, si lo autorizas, para enviarte ofertas. Nunca vendemos datos a terceros. Consulta nuestra Política de Privacidad.'
+      },
+    ]
+  },
+];
+---
+
+<Layout title="Preguntas Frecuentes - Venice Pet Shop">
+  <div class="bg-gradient-to-b from-purple-50 to-white min-h-screen">
+    <!-- Hero -->
+    <section class="py-16">
+      <div class="max-w-4xl mx-auto px-4 text-center">
+        <span class="text-6xl mb-6 block">❓</span>
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Preguntas Frecuentes</h1>
+        <p class="text-xl text-gray-600">
+          Encuentra respuestas rápidas a las dudas más comunes
+        </p>
+        
+        <!-- Buscador -->
+        <div class="mt-8 max-w-xl mx-auto">
+          <div class="relative">
+            <input 
+              type="text" 
+              id="faq-search"
+              placeholder="Buscar en las preguntas..." 
+              class="w-full px-6 py-4 rounded-full border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all text-lg"
+            />
+            <svg class="w-6 h-6 absolute right-6 top-1/2 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navegación por categorías -->
+    <section class="pb-8">
+      <div class="max-w-4xl mx-auto px-4">
+        <div class="flex flex-wrap justify-center gap-4">
+          {faqs.map((cat) => (
+            <a 
+              href={`#${cat.category.toLowerCase().replace(/\s+/g, '-')}`}
+              class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-all border border-gray-100 hover:border-purple-300"
+            >
+              <span>{cat.icon}</span>
+              <span class="font-medium text-gray-700">{cat.category}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQs por categoría -->
+    <section class="py-12">
+      <div class="max-w-4xl mx-auto px-4">
+        {faqs.map((category) => (
+          <div id={category.category.toLowerCase().replace(/\s+/g, '-')} class="mb-12 scroll-mt-24">
+            <div class="flex items-center gap-3 mb-6">
+              <span class="text-3xl">{category.icon}</span>
+              <h2 class="text-2xl font-bold text-gray-900">{category.category}</h2>
+            </div>
+            
+            <div class="space-y-4">
+              {category.questions.map((faq, idx) => (
+                <details class="faq-item bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group">
+                  <summary class="flex justify-between items-center cursor-pointer p-6 hover:bg-gray-50 transition-colors">
+                    <span class="font-medium text-gray-900 pr-4">{faq.q}</span>
+                    <svg class="w-6 h-6 text-purple-600 flex-shrink-0 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </summary>
+                  <div class="px-6 pb-6 text-gray-600 border-t border-gray-100 pt-4">
+                    {faq.a}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- CTA Contacto -->
+    <section class="py-12">
+      <div class="max-w-4xl mx-auto px-4">
+        <div class="bg-gradient-to-r from-purple-600 to-pink-500 rounded-2xl p-8 md:p-12 text-white text-center">
+          <span class="text-4xl mb-4 block">🤔</span>
+          <h2 class="text-2xl md:text-3xl font-bold mb-4">¿No encuentras lo que buscas?</h2>
+          <p class="text-lg opacity-90 mb-8 max-w-xl mx-auto">
+            Nuestro equipo de atención al cliente está disponible para ayudarte con cualquier duda
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a 
+              href="/contacto" 
+              class="inline-flex items-center justify-center gap-2 bg-white text-purple-600 px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition-colors"
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Contactar por email
+            </a>
+            <a 
+              href="https://wa.me/34600000000" 
+              target="_blank"
+              class="inline-flex items-center justify-center gap-2 bg-green-500 text-white px-8 py-4 rounded-lg font-bold hover:bg-green-600 transition-colors"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              Chat por WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<script>
+  // Buscador de FAQs
+  const searchInput = document.getElementById('faq-search') as HTMLInputElement;
+  const faqItems = document.querySelectorAll('.faq-item');
+
+  searchInput?.addEventListener('input', (e) => {
+    const query = (e.target as HTMLInputElement).value.toLowerCase();
+    
+    faqItems.forEach((item) => {
+      const text = item.textContent?.toLowerCase() || '';
+      if (text.includes(query) || query === '') {
+        (item as HTMLElement).style.display = 'block';
+      } else {
+        (item as HTMLElement).style.display = 'none';
+      }
+    });
+  });
+</script>

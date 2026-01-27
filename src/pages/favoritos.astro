@@ -1,0 +1,129 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { supabase } from '../lib/supabase';
+
+// Verificar sesión
+const accessToken = Astro.cookies.get('sb-access-token')?.value;
+let user = null;
+let favorites: any[] = [];
+
+if (accessToken) {
+  const { data: { user: authUser } } = await supabase.auth.getUser(accessToken);
+  user = authUser;
+}
+---
+
+<Layout title="Mis Favoritos - Venice Pet Shop">
+  <div class="min-h-screen bg-gray-50 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Header -->
+      <div class="mb-8">
+        <nav class="text-sm text-gray-500 mb-4">
+          <a href="/" class="hover:text-purple-600">Inicio</a>
+          <span class="mx-2">›</span>
+          <span class="text-gray-900">Mis Favoritos</span>
+        </nav>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <span class="text-4xl">❤️</span>
+            <div>
+              <h1 class="text-3xl font-bold text-gray-900">Mis Favoritos</h1>
+              <p class="text-gray-600" id="favorites-count">Cargando...</p>
+            </div>
+          </div>
+          <button 
+            id="clear-all"
+            class="hidden text-red-600 hover:text-red-700 font-medium hover:underline"
+          >
+            Eliminar todos
+          </button>
+        </div>
+      </div>
+
+      <!-- Grid de favoritos -->
+      <div id="favorites-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Productos se renderizan con JS -->
+      </div>
+
+      <!-- Estado vacío -->
+      <div id="empty-state" class="hidden text-center py-16">
+        <span class="text-6xl mb-4 block">💔</span>
+        <h2 class="text-2xl font-bold text-gray-700 mb-2">Tu lista de favoritos está vacía</h2>
+        <p class="text-gray-500 mb-8">Explora nuestros productos y guarda los que más te gusten</p>
+        <a 
+          href="/productos" 
+          class="inline-flex items-center gap-2 bg-purple-600 text-white px-8 py-4 rounded-lg font-bold hover:bg-purple-700 transition-colors"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          Explorar productos
+        </a>
+      </div>
+
+      <!-- Productos recomendados -->
+      <section class="mt-16 hidden" id="recommendations">
+        <h2 class="text-2xl font-bold mb-6">También te puede interesar</h2>
+        <div id="recommendations-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Productos recomendados -->
+        </div>
+      </section>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { createElement } from 'react';
+  import { createRoot } from 'react-dom/client';
+  import ProductCard from '../components/ProductCard';
+
+  function loadFavorites() {
+    const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    const grid = document.getElementById('favorites-grid');
+    const emptyState = document.getElementById('empty-state');
+    const countEl = document.getElementById('favorites-count');
+    const clearBtn = document.getElementById('clear-all');
+
+    if (!grid) return;
+
+    // Limpiar grid
+    grid.innerHTML = '';
+
+    if (wishlist.length === 0) {
+      grid.classList.add('hidden');
+      emptyState?.classList.remove('hidden');
+      countEl!.textContent = '0 productos guardados';
+      clearBtn?.classList.add('hidden');
+    } else {
+      grid.classList.remove('hidden');
+      emptyState?.classList.add('hidden');
+      countEl!.textContent = `${wishlist.length} producto${wishlist.length !== 1 ? 's' : ''} guardado${wishlist.length !== 1 ? 's' : ''}`;
+      clearBtn?.classList.remove('hidden');
+
+      // Renderizar productos
+      wishlist.forEach((product: any) => {
+        const container = document.createElement('div');
+        container.className = 'favorite-item';
+        grid.appendChild(container);
+        
+        const root = createRoot(container);
+        root.render(createElement(ProductCard, { product, showQuickActions: true }));
+      });
+    }
+  }
+
+  // Cargar favoritos al inicio
+  document.addEventListener('DOMContentLoaded', loadFavorites);
+
+  // Escuchar cambios en wishlist
+  window.addEventListener('wishlistUpdated', loadFavorites);
+
+  // Botón limpiar todos
+  document.getElementById('clear-all')?.addEventListener('click', () => {
+    if (confirm('¿Estás seguro de que quieres eliminar todos los favoritos?')) {
+      localStorage.setItem('wishlist', '[]');
+      loadFavorites();
+      window.dispatchEvent(new CustomEvent('wishlistUpdated'));
+    }
+  });
+</script>

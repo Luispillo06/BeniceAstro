@@ -1,0 +1,254 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+// Artículos del blog (en producción vendrían de Supabase)
+const articles = [
+  {
+    slug: 'elegir-pienso-perro',
+    title: 'Cómo elegir el mejor pienso para tu perro',
+    excerpt: 'Guía completa para seleccionar la alimentación perfecta según la edad, tamaño y necesidades de tu perro.',
+    image: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800',
+    category: 'Alimentación',
+    categoryColor: 'purple',
+    author: 'Dra. María García',
+    date: '2024-01-15',
+    readTime: '8 min',
+    featured: true,
+  },
+  {
+    slug: 'cuidados-gato-verano',
+    title: '10 consejos para cuidar a tu gato en verano',
+    excerpt: 'El calor puede afectar a los felinos. Descubre cómo mantener a tu gato fresco y saludable.',
+    image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800',
+    category: 'Salud',
+    categoryColor: 'green',
+    author: 'Dr. Carlos Ruiz',
+    date: '2024-01-10',
+    readTime: '5 min',
+    featured: true,
+  },
+  {
+    slug: 'juguetes-estimulacion-mental',
+    title: 'Los mejores juguetes para estimular la mente de tu mascota',
+    excerpt: 'Mantén a tu perro o gato mentalmente activo con estos juguetes interactivos.',
+    image: 'https://images.unsplash.com/photo-1535930891776-0c2dfb7fda1a?w=800',
+    category: 'Accesorios',
+    categoryColor: 'orange',
+    author: 'Laura Martínez',
+    date: '2024-01-05',
+    readTime: '6 min',
+    featured: false,
+  },
+  {
+    slug: 'primeros-dias-cachorro',
+    title: 'Guía: Los primeros días con tu cachorro en casa',
+    excerpt: 'Todo lo que necesitas saber para recibir a tu nuevo mejor amigo.',
+    image: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800',
+    category: 'Consejos',
+    categoryColor: 'blue',
+    author: 'Ana López',
+    date: '2024-01-01',
+    readTime: '10 min',
+    featured: false,
+  },
+  {
+    slug: 'antiparasitarios-importancia',
+    title: 'Por qué los antiparasitarios son esenciales',
+    excerpt: 'Protege a tu mascota de parásitos internos y externos durante todo el año.',
+    image: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=800',
+    category: 'Salud',
+    categoryColor: 'green',
+    author: 'Dr. Carlos Ruiz',
+    date: '2023-12-20',
+    readTime: '7 min',
+    featured: false,
+  },
+  {
+    slug: 'arenero-perfecto-gato',
+    title: 'Cómo elegir el arenero perfecto para tu gato',
+    excerpt: 'Tipos de areneros, arenas y ubicación ideal para la comodidad de tu felino.',
+    image: 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=800',
+    category: 'Accesorios',
+    categoryColor: 'orange',
+    author: 'Laura Martínez',
+    date: '2023-12-15',
+    readTime: '5 min',
+    featured: false,
+  },
+];
+
+const categories = [
+  { name: 'Todos', count: articles.length },
+  { name: 'Alimentación', count: articles.filter(a => a.category === 'Alimentación').length },
+  { name: 'Salud', count: articles.filter(a => a.category === 'Salud').length },
+  { name: 'Accesorios', count: articles.filter(a => a.category === 'Accesorios').length },
+  { name: 'Consejos', count: articles.filter(a => a.category === 'Consejos').length },
+];
+
+const featuredArticles = articles.filter(a => a.featured);
+const regularArticles = articles.filter(a => !a.featured);
+
+const getCategoryColor = (color: string) => {
+  const colors: Record<string, string> = {
+    purple: 'bg-purple-100 text-purple-700',
+    green: 'bg-green-100 text-green-700',
+    orange: 'bg-orange-100 text-orange-700',
+    blue: 'bg-blue-100 text-blue-700',
+  };
+  return colors[color] || colors.purple;
+};
+---
+
+<Layout title="Blog - Consejos para tu mascota | Venice Pet Shop">
+  <div class="bg-gradient-to-b from-purple-50 to-white min-h-screen">
+    <!-- Hero -->
+    <section class="py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <span class="inline-block bg-purple-100 text-purple-700 px-4 py-1 rounded-full text-sm font-medium mb-4">
+          📚 Nuestro Blog
+        </span>
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          Consejos para cuidar a tu mascota
+        </h1>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+          Artículos escritos por expertos veterinarios y especialistas en cuidado animal
+        </p>
+      </div>
+    </section>
+
+    <!-- Categorías -->
+    <section class="pb-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-wrap gap-3 justify-center">
+          {categories.map((cat, idx) => (
+            <button class={`px-4 py-2 rounded-full font-medium transition-colors ${
+              idx === 0 ? 'bg-purple-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'
+            }`}>
+              {cat.name} <span class="text-sm opacity-70">({cat.count})</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Artículos destacados -->
+    <section class="py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl font-bold mb-8 flex items-center gap-2">
+          <span>⭐</span> Artículos destacados
+        </h2>
+        <div class="grid md:grid-cols-2 gap-8">
+          {featuredArticles.map((article) => (
+            <a 
+              href={`/blog/${article.slug}`}
+              class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all"
+            >
+              <div class="relative h-64 overflow-hidden">
+                <img 
+                  src={article.image} 
+                  alt={article.title}
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <span class={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(article.categoryColor)}`}>
+                  {article.category}
+                </span>
+              </div>
+              <div class="p-6">
+                <h3 class="text-xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors mb-2">
+                  {article.title}
+                </h3>
+                <p class="text-gray-600 mb-4">{article.excerpt}</p>
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                  <span>{article.author}</span>
+                  <span class="flex items-center gap-2">
+                    <span>📅 {new Date(article.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span>
+                    <span>·</span>
+                    <span>⏱️ {article.readTime}</span>
+                  </span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Todos los artículos -->
+    <section class="py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl font-bold mb-8">Últimos artículos</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {regularArticles.map((article) => (
+            <a 
+              href={`/blog/${article.slug}`}
+              class="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all"
+            >
+              <div class="relative h-48 overflow-hidden">
+                <img 
+                  src={article.image} 
+                  alt={article.title}
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <span class={`absolute top-3 left-3 px-2 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(article.categoryColor)}`}>
+                  {article.category}
+                </span>
+              </div>
+              <div class="p-5">
+                <h3 class="font-bold text-gray-900 group-hover:text-purple-600 transition-colors mb-2">
+                  {article.title}
+                </h3>
+                <p class="text-gray-600 text-sm line-clamp-2 mb-3">{article.excerpt}</p>
+                <div class="flex items-center justify-between text-xs text-gray-500">
+                  <span>{article.author}</span>
+                  <span>⏱️ {article.readTime}</span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+
+        <!-- Paginación -->
+        <div class="flex justify-center gap-2 mt-12">
+          <button class="px-4 py-2 rounded-lg bg-purple-600 text-white font-medium">1</button>
+          <button class="px-4 py-2 rounded-lg bg-white text-gray-700 hover:bg-gray-100">2</button>
+          <button class="px-4 py-2 rounded-lg bg-white text-gray-700 hover:bg-gray-100">3</button>
+          <button class="px-4 py-2 rounded-lg bg-white text-gray-700 hover:bg-gray-100">→</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="py-12">
+      <div class="max-w-4xl mx-auto px-4">
+        <div class="bg-gradient-to-r from-purple-600 to-pink-500 rounded-2xl p-8 md:p-12 text-white text-center">
+          <span class="text-4xl mb-4 block">✉️</span>
+          <h2 class="text-2xl md:text-3xl font-bold mb-4">
+            ¿Quieres recibir los mejores consejos?
+          </h2>
+          <p class="text-lg opacity-90 mb-8 max-w-xl mx-auto">
+            Suscríbete a nuestra newsletter y recibe artículos exclusivos, ofertas especiales y novedades
+          </p>
+          <form class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+            <input 
+              type="email" 
+              placeholder="tu@email.com" 
+              class="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:ring-4 focus:ring-white/30"
+            />
+            <button type="submit" class="bg-yellow-400 text-yellow-900 px-6 py-3 rounded-lg font-bold hover:bg-yellow-300 transition-colors whitespace-nowrap">
+              Suscribirme
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
