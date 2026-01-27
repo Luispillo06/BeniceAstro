@@ -98,7 +98,8 @@ import Layout from '../layouts/Layout.astro';
           options: {
             data: {
               full_name: fullName,
-            }
+            },
+            emailRedirectTo: undefined
           }
         });
 
@@ -114,14 +115,20 @@ import Layout from '../layouts/Layout.astro';
           });
         }
 
-        successMessage!.textContent = 'Cuenta creada exitosamente. Redirigiendo...';
-        successMessage!.classList.remove('hidden');
-        errorMessage!.classList.add('hidden');
-
-        // Redirigir después de 2 segundos
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 2000);
+        // Si hay sesion, el usuario ya esta autenticado
+        if (data.session) {
+          successMessage!.textContent = 'Cuenta creada. Redirigiendo...';
+          successMessage!.classList.remove('hidden');
+          errorMessage!.classList.add('hidden');
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 1500);
+        } else {
+          // Si no hay sesion, requiere verificacion (mostrar mensaje)
+          successMessage!.innerHTML = 'Cuenta creada. <strong>Revisa tu correo</strong> para activarla.';
+          successMessage!.classList.remove('hidden');
+          errorMessage!.classList.add('hidden');
+        }
       } catch (error: any) {
         errorMessage!.textContent = error.message || 'Error al crear la cuenta';
         errorMessage!.classList.remove('hidden');
