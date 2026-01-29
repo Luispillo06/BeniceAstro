@@ -1,7 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { supabase } from '../lib/supabase';
+import { createServerClient } from '../lib/supabase';
 
+const supabase = createServerClient(Astro.cookies);
 const { data: { session } } = await supabase.auth.getSession();
 
 if (!session) {
@@ -270,6 +271,9 @@ const totalSpent = totalSpentData?.reduce((sum, order) => sum + Number(order.tot
     // Cerrar sesión
     document.getElementById('logout-btn')?.addEventListener('click', async () => {
       await supabase.auth.signOut();
+      // Borrar cookies de sesión
+      document.cookie = 'sb-access-token=; path=/; max-age=0';
+      document.cookie = 'sb-refresh-token=; path=/; max-age=0';
       window.location.href = '/';
     });
   </script>

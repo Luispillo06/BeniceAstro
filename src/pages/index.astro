@@ -364,15 +364,11 @@ const hasProducts = products && products.length > 0;
 
   <script>
     // Toggle de filtros
-    document.querySelectorAll('.filter-toggle').forEach((button, index) => {
+    document.querySelectorAll('.filter-toggle').forEach((button) => {
       button.addEventListener('click', () => {
         const section = button.closest('.filter-section');
         section?.classList.toggle('open');
       });
-      // Abrir primeros 4 filtros por defecto
-      if (index < 4) {
-        button.closest('.filter-section')?.classList.add('open');
-      }
     });
 
     // Añadir al carrito

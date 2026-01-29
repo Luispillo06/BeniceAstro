@@ -62,12 +62,19 @@ import Layout from '../layouts/Layout.astro';
       const password = (document.getElementById('password') as HTMLInputElement).value;
 
       try {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
         if (error) throw error;
+
+        // Guardar tokens en cookies para SSR
+        if (data.session) {
+          const maxAge = 60 * 60 * 24 * 7; // 7 días
+          document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+          document.cookie = `sb-refresh-token=${data.session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+        }
 
         // Redirigir a la página principal
         window.location.href = '/';
